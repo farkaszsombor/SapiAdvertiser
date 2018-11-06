@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "407447307937",
+    "firebase_url": "https://sapiadvertiser-5bc78.firebaseio.com",
+    "project_id": "sapiadvertiser-5bc78",
+    "storage_bucket": "sapiadvertiser-5bc78.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:407447307937:android:a434738187dcb5b7",
+        "android_client_info": {
+          "package_name": "ro.sapientia.ms.sapiadvertiser"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "407447307937-6plqhnefdgvhv98l77mhpaogpca2ifgd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ro.sapientia.ms.sapiadvertiser",
+            "certificate_hash": "b190222863bc47ede0c2b2ac8e5cd794d0563d71"
+          }
+        },
+        {
+          "client_id": "407447307937-05u77j4ua6ta5ak1sdlvp5ehrcuku0jl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYDYdBJFB-GMux9Sk0nBaZj2eSTDfkRiY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "407447307937-05u77j4ua6ta5ak1sdlvp5ehrcuku0jl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
