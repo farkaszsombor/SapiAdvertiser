@@ -1,15 +1,19 @@
 package ro.sapientia.ms.sapiadvertiser;
 
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -18,47 +22,49 @@ import com.google.firebase.auth.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class LoginActivity extends BasicActivity {
-    private static final String TAG = "LoginActivity";
-    private FirebaseAuth mAuth;
+public class SignUpActivity extends BasicActivity  {
 
-    private Button mButton;
+    private static final String TAG = "SignUpActivity";
+
     private Button mSignUpButton;
-    private EditText mEditText;
+    private EditText mUserNameEditText;
+    private EditText mEmailEditText;
+    private EditText mPhoneEditText;
     private String mVerificationId;
+
     private PhoneAuthProvider.ForceResendingToken mResendToken;
-
     private boolean mButtonType = false;
-
-
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
-        init();//inicializalom a fuggvenyeket ez mindenhol meg kell irni
+        setContentView(R.layout.activity_sign_up);
 
 
-        //mindegyik activitybe be kell irni ezt a fuggvenyt
-        if (!Utils.isNetworkAvailable(LoginActivity.this)) {
+        init();
+
+
+        if (!Utils.isNetworkAvailable(SignUpActivity.this)) {
 
             toggleViews();
 
         } else {
-
-            mButton.setOnClickListener(new View.OnClickListener() {
+            mSignUpButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "onClickListener");
-                    if (mButtonType) {
-                        String verificationCode = mEditText.getText().toString();
-                        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, verificationCode);
+                    if(mButtonType)
+                    {
+                        String verificationCode= mEmailEditText.getText().toString();
+                        PhoneAuthCredential credential= PhoneAuthProvider.getCredential(mVerificationId,verificationCode);
                         signInWithPhoneAuthCredential(credential);
-                    } else {
+                    }
+                    else {
+
+                        //helyes irhatott be telefonszamot startbol
                         PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                                mEditText.getText().toString(), 30L /*timeout*/, TimeUnit.SECONDS,
-                                LoginActivity.this, new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                                mPhoneEditText.getText().toString(), 30L /*timeout*/, TimeUnit.SECONDS,
+                                SignUpActivity.this, new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
                                     @Override
                                     public void onCodeSent(String verificationId,
@@ -71,10 +77,15 @@ public class LoginActivity extends BasicActivity {
                                         // Save verification ID and resending token so we can use them later
                                         mVerificationId = verificationId;
                                         mResendToken = token;
-                                        mButtonType = true;
-                                        mButton.setText("Enter Code");
-                                        mEditText.setHint("Veryfy Code");
-                                        mEditText.setText("");
+
+                                        mUserNameEditText.setVisibility(View.INVISIBLE);
+                                        mPhoneEditText.setVisibility(View.INVISIBLE);
+                                        mButtonType=true;
+
+                                        mEmailEditText.setText("");
+                                        mEmailEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                                        mEmailEditText.setHint("Verification Code");
+                                        mSignUpButton.setText("Enter Code");
                                     }
 
                                     @Override
@@ -82,32 +93,32 @@ public class LoginActivity extends BasicActivity {
                                         // Sign in with the credential
                                         // ...
                                         signInWithPhoneAuthCredential(phoneAuthCredential);
+
                                     }
 
                                     @Override
                                     public void onVerificationFailed(FirebaseException e) {
                                         // ...
-                                        Log.d(TAG, e.getMessage());
-                                        Log.d(TAG, e.getStackTrace().toString());
-                                        Toast.makeText(LoginActivity.this, "onVerificationFailed", Toast.LENGTH_SHORT).show();
+
+
+                                        Log.d(TAG,e.getMessage());
+                                        Log.d(TAG,e.getStackTrace().toString());
+                                        Toast.makeText(SignUpActivity.this, "onVerificationFailed", Toast.LENGTH_SHORT).show();
                                     }
 
                                 });
+
                     }
-                }
-            });
 
-            mSignUpButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
-                    startActivity(intent);
-                    finish();
                 }
             });
         }
+
+
     }
+
+
+
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         mAuth.signInWithCredential(credential)
@@ -119,27 +130,27 @@ public class LoginActivity extends BasicActivity {
                             Log.d(TAG, "signInWithCredential:success");
 
                             FirebaseUser user = task.getResult().getUser();
+                            //Regisztralom utolag a profiljat a beleponek
 
                             //itt akkor is adhat nullt ha a tasktol nem tudom elvenni ebben az esetben
                             //mAuth.getCurrentUser()-el kerem le ezt LE KELL DEBUGGOLNI ZSOMBI
-                            if(user.getDisplayName()==null)
+                            if(user!=null)
                             {
-                                mAuth.getInstance().signOut();
-                                Intent intent = new Intent(LoginActivity.this, DebugActivity.class);
-                                intent.putExtra("msg","Sikertelenul jelentkezett be mert nem volt profilja"+ user.getPhoneNumber());
+                                user.updateProfile(new UserProfileChangeRequest.Builder().setDisplayName(mUserNameEditText.getText().toString()).build());
+                                user.updateEmail(mEmailEditText.getText().toString());
+
+                                //ide kell az Intentbe belerakni a belejentkezes utani mezot
+                                Intent intent = new Intent(SignUpActivity.this, DebugActivity.class);
+                                intent.putExtra("msg","Beregisztralta magat"+ mUserNameEditText.getText().toString());
                                 startActivity(intent);
-                                finish();
+
                             }
                             else
                             {
-                                //ide kell az Intentbe belerakni a belejentkezes utani mezot
-                                Intent intent = new Intent(LoginActivity.this, DebugActivity.class);
-                                intent.putExtra("msg","Bejelentkezett"+ user.getDisplayName());
+                                Intent intent = new Intent(SignUpActivity.this, DebugActivity.class);
+                                intent.putExtra("msg","NULL POINTER EXCEPTION");
                                 startActivity(intent);
                             }
-
-
-
                             finish();
                         } else {
                             // Sign in failed, display a message and update the UI
@@ -152,21 +163,22 @@ public class LoginActivity extends BasicActivity {
                 });
     }
 
-    private void  init()
+    private void init()
     {
         mViews= new ArrayList<>();
 
         mAuth = FirebaseAuth.getInstance();
 
-        mButton = findViewById(R.id.loginButton);
-        mSignUpButton = findViewById(R.id.signUpButton);
-        mEditText=findViewById(R.id.loginPhoneNumberEditText);
+        mSignUpButton=findViewById(R.id.signUpButton);
+        mUserNameEditText=findViewById(R.id.userNameEditText);
+        mEmailEditText=findViewById(R.id.emailEditText);
+        mPhoneEditText=findViewById(R.id.phoneNumberEditText);
+        noInternetTextView=findViewById(R.id.noInternetTextView);
 
-        noInternetTextView=findViewById(R.id.intrnetIsMissing);//fontos h mindig a noInternetTextView -ra rakjuk ra azt a neki megfelelo mezot a toggle biztositja utana a dolgokat
-
-        mViews.add(mButton);
         mViews.add(mSignUpButton);
-        mViews.add(mEditText);
+        mViews.add(mUserNameEditText);
+        mViews.add(mEmailEditText);
+        mViews.add(mPhoneEditText);
     }
 
 }
