@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".Activities.MainActivity">
 
     <FrameLayout
@@ -23,6 +24,7 @@
         android:background="@color/colorPrimary"
         app:itemIconTint="#FFFFFF"
         app:itemTextColor="#FFFFFF"
+        app:itemIconSize="30dp"
         app:menu="@menu/bottom_nav_items"
         app:layout_constraintBottom_toBottomOf="parent"/>
 

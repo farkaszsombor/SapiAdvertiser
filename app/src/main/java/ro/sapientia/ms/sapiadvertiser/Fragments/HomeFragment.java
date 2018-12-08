@@ -3,12 +3,27 @@ package ro.sapientia.ms.sapiadvertiser.Fragments;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import ro.sapientia.ms.sapiadvertiser.Model.Advertisement;
 import ro.sapientia.ms.sapiadvertiser.R;
+import ro.sapientia.ms.sapiadvertiser.Utils.AdAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -18,6 +33,11 @@ import ro.sapientia.ms.sapiadvertiser.R;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
+
+//use this when you add ad to firebase
+//FirebaseDatabase database = FirebaseDatabase.getInstance();
+  //      String key = database.getReference("advertismenets").push().getKey();
+
 public class HomeFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -28,21 +48,20 @@ public class HomeFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    private final static String TAG = "HOMEFRAGMENT";
+
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter adapter;
+
+    private FirebaseDatabase databaseInstance = FirebaseDatabase.getInstance();
+    private DatabaseReference advertisementRef = databaseInstance.getReference("advertismenets");
+    private ArrayList<Advertisement> adDataSet = new ArrayList<>();
     private OnFragmentInteractionListener mListener;
 
     public HomeFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static HomeFragment newInstance(String param1, String param2) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
@@ -59,13 +78,16 @@ public class HomeFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        adDataSet.clear();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        recyclerView = view.findViewById(R.id.list_of_ads);
+        setUpRecyclerView();
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -92,18 +114,33 @@ public class HomeFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    private void setUpRecyclerView(){
+
+        recyclerView.setHasFixedSize(true);
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(manager);
+        adapter = new AdAdapter(getContext(),adDataSet);
+        advertisementRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot elements : dataSnapshot.getChildren()) {
+                    Advertisement advertisement = elements.getValue(Advertisement.class);
+                    adDataSet.add(advertisement);
+                }
+                recyclerView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(TAG,databaseError.getMessage());
+            }
+        });
+    }
+
 }

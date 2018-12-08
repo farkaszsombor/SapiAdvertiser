@@ -3,17 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/tud"
-        android:title="MitTudom"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:title="@string/navigation_add"
+        android:icon="@drawable/ic_add_black_24dp"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/home"
-        android:title="Home"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:title="@string/navigation_home"
+        android:icon="@drawable/ic_home_black_24dp"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/profile"
-        android:title="Profile"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:title="@string/navigation_profile"
+        android:icon="@drawable/ic_portrait_black_24dp"
         app:showAsAction="ifRoom"/>
 </menu>
