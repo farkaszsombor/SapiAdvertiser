@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">SapiAdvertiser</string>
+<<<<<<< .merge_file_a01004
     <string name="title_activity_login">LoginActivity</string>
+=======
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+>>>>>>> .merge_file_a08336
 </resources>
