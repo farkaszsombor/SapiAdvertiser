@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ProfileActivity">
+    tools:context=".Activities.MainActivity">
 
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -64,7 +64,7 @@
         android:textColor="#363030"
         android:textSize="18dp"
         app:layout_constraintTop_toBottomOf="@id/profileName"
-         />
+        />
 
     <EditText
         android:layout_marginTop="20dp"
