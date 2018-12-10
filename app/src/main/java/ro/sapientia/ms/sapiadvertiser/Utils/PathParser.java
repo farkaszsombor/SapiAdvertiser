@@ -1,12 +1,12 @@
 package ro.sapientia.ms.sapiadvertiser.Utils;
 
-        import android.content.Context;
-        import android.database.Cursor;
-        import android.net.Uri;
-        import android.provider.DocumentsContract;
-        import android.provider.MediaStore;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 
-        import java.util.Objects;
+import java.util.Objects;
 
 public class PathParser {
 
