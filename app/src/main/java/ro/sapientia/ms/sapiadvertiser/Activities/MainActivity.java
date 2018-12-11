@@ -11,12 +11,12 @@ import android.view.MenuItem;
 import ro.sapientia.ms.sapiadvertiser.Fragments.CreateAdFragment;
 import ro.sapientia.ms.sapiadvertiser.Fragments.DetailsFragment;
 import ro.sapientia.ms.sapiadvertiser.Fragments.HomeFragment;
-import ro.sapientia.ms.sapiadvertiser.Fragments.ProfileFragment;
+import ro.sapientia.ms.sapiadvertiser.Fragments.ProfileUpdateFragment;
 import ro.sapientia.ms.sapiadvertiser.R;
 import ro.sapientia.ms.sapiadvertiser.Utils.FragmentManager;
 
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener
-                                                    ,ProfileFragment.OnFragmentInteractionListener
+                                                    ,ProfileUpdateFragment.OnFragmentInteractionListener
                                                     ,DetailsFragment.OnFragmentInteractionListener
                                                     ,CreateAdFragment.OnFragmentInteractionListener {
 
@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                     selectedFragment = new HomeFragment();
                     break;
                 case R.id.profile:
-                    selectedFragment = new ProfileFragment();
+                    selectedFragment = new ProfileUpdateFragment();
                     break;
                 default:
                     selectedFragment = new HomeFragment();

@@ -1,4 +1,4 @@
-package ro.sapientia.ms.sapiadvertiser;
+package ro.sapientia.ms.sapiadvertiser.Activities;
 
 interface InternetStateListener {
 

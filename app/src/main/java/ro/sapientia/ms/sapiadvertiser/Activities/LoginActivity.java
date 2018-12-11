@@ -1,6 +1,7 @@
-package ro.sapientia.ms.sapiadvertiser;
+package ro.sapientia.ms.sapiadvertiser.Activities;
 
 import android.content.Intent;
+import android.net.Network;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,6 +18,9 @@ import com.google.firebase.auth.*;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
+import ro.sapientia.ms.sapiadvertiser.Utils.NetworkUtils;
+import ro.sapientia.ms.sapiadvertiser.R;
 
 public class LoginActivity extends BasicActivity {
     private static final String TAG = "LoginActivity";
@@ -41,7 +45,7 @@ public class LoginActivity extends BasicActivity {
 
 
         //mindegyik activitybe be kell irni ezt a fuggvenyt
-        if (!Utilss.isNetworkAvailable(LoginActivity.this)) {
+        if (!NetworkUtils.isNetworkAvailable(LoginActivity.this)) {
 
             toggleViews();
 

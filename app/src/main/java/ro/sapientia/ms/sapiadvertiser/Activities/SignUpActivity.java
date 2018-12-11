@@ -1,4 +1,4 @@
-package ro.sapientia.ms.sapiadvertiser;
+package ro.sapientia.ms.sapiadvertiser.Activities;
 
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -21,6 +21,9 @@ import com.google.firebase.auth.*;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
+import ro.sapientia.ms.sapiadvertiser.Utils.NetworkUtils;
+import ro.sapientia.ms.sapiadvertiser.R;
 
 public class SignUpActivity extends BasicActivity  {
 
@@ -45,7 +48,7 @@ public class SignUpActivity extends BasicActivity  {
         init();
 
 
-        if (!Utilss.isNetworkAvailable(SignUpActivity.this)) {
+        if (!NetworkUtils.isNetworkAvailable(SignUpActivity.this)) {
 
             toggleViews();
 
