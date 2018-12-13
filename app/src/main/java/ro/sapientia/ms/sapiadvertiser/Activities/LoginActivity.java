@@ -1,6 +1,7 @@
 package ro.sapientia.ms.sapiadvertiser.Activities;
 
 import android.content.Intent;
+import android.net.Network;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,7 @@ import com.google.firebase.auth.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import ro.sapientia.ms.sapiadvertiser.Utils.NetworkUtils;
 import ro.sapientia.ms.sapiadvertiser.R;
 
 public class LoginActivity extends BasicActivity {
@@ -36,13 +38,13 @@ public class LoginActivity extends BasicActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(ro.sapientia.ms.sapiadvertiser.R.layout.activity_login);
+        setContentView(R.layout.activity_login);
 
         init();//inicializalom a fuggvenyeket ez mindenhol meg kell irni
 
 
         //mindegyik activitybe be kell irni ezt a fuggvenyt
-        if (!Utilss.isNetworkAvailable(LoginActivity.this)) {
+        if (!NetworkUtils.isNetworkAvailable(LoginActivity.this)) {
 
             toggleViews();
 
@@ -159,9 +161,9 @@ public class LoginActivity extends BasicActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        mButton = findViewById(ro.sapientia.ms.sapiadvertiser.R.id.loginButton);
-        mSignUpButton = findViewById(ro.sapientia.ms.sapiadvertiser.R.id.signUpButton);
-        mEditText=findViewById(ro.sapientia.ms.sapiadvertiser.R.id.loginPhoneNumberEditText);
+        mButton = findViewById(R.id.loginButton);
+        mSignUpButton = findViewById(R.id.signUpButton);
+        mEditText=findViewById(R.id.loginPhoneNumberEditText);
 
         noInternetTextView=findViewById(R.id.intrnetIsMissing);//fontos h mindig a noInternetTextView -ra rakjuk ra azt a neki megfelelo mezot a toggle biztositja utana a dolgokat
 

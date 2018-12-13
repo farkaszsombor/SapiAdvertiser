@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import ro.sapientia.ms.sapiadvertiser.Utils.NetworkUtils;
+
 public class NetworkReceiver extends BroadcastReceiver {
     private  InternetStateListener networkStateListener;
     public NetworkReceiver(InternetStateListener networkStateListener){
@@ -11,7 +13,7 @@ public class NetworkReceiver extends BroadcastReceiver {
     }
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(Utilss.isNetworkAvailable(context)) {
+        if(NetworkUtils.isNetworkAvailable(context)) {
             networkStateListener.onConnected();
         }
         else {

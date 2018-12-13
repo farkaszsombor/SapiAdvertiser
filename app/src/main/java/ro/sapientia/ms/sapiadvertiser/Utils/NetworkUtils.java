@@ -1,12 +1,10 @@
-package ro.sapientia.ms.sapiadvertiser.Activities;
+package ro.sapientia.ms.sapiadvertiser.Utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
-
-public class Utilss {
-
+public class NetworkUtils {
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager connec = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         try {
@@ -14,7 +12,7 @@ public class Utilss {
 
             android.net.NetworkInfo mobile = connec.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-            if (wifi.isConnected()||mobile.isConnected())
+            if (wifi.isConnected() || mobile.isConnected())
                 return true;
             else if (wifi.isConnected() && mobile.isConnected())
                 return true;
@@ -26,8 +24,5 @@ public class Utilss {
             return false;
         }
 
-
-        //legnagyobb baj az az, hogy kezdetbe nullpointer exeptiont kapok akkor is ha van net
-        //valamiert ugy erzekeli hogy nincs meg a prioritasom kezdetben
     }
 }

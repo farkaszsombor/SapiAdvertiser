@@ -1,13 +1,18 @@
 package ro.sapientia.ms.sapiadvertiser.Activities;
 
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -17,9 +22,10 @@ import com.google.firebase.auth.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import ro.sapientia.ms.sapiadvertiser.Utils.NetworkUtils;
 import ro.sapientia.ms.sapiadvertiser.R;
 
-public class SignUpActivity extends BasicActivity {
+public class SignUpActivity extends BasicActivity  {
 
     private static final String TAG = "SignUpActivity";
 
@@ -42,7 +48,7 @@ public class SignUpActivity extends BasicActivity {
         init();
 
 
-        if (!Utilss.isNetworkAvailable(SignUpActivity.this)) {
+        if (!NetworkUtils.isNetworkAvailable(SignUpActivity.this)) {
 
             toggleViews();
 
@@ -79,7 +85,7 @@ public class SignUpActivity extends BasicActivity {
                                         mPhoneEditText.setVisibility(View.INVISIBLE);
                                         mButtonType=true;
 
-                                        //mEmailEditText.setText("");
+                                        mEmailEditText.setText("");
                                         mEmailEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
                                         mEmailEditText.setHint("Verification Code");
                                         mSignUpButton.setText("Enter Code");
@@ -134,13 +140,11 @@ public class SignUpActivity extends BasicActivity {
                             if(user!=null)
                             {
                                 user.updateProfile(new UserProfileChangeRequest.Builder().setDisplayName(mUserNameEditText.getText().toString()).build());
-                                // TODO: Update email gives nullpointer exception! Until not solved it will remain commented out
-                                //java.lang.IllegalArgumentException: Given String is empty or null
-                                //user.updateEmail(mEmailEditText.getText().toString());
+                                user.updateEmail(mEmailEditText.getText().toString());
 
                                 //ide kell az Intentbe belerakni a belejentkezes utani mezot
-                                Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                                //intent.putExtra("msg","Beregisztralta magat"+ mUserNameEditText.getText().toString());
+                                Intent intent = new Intent(SignUpActivity.this, DebugActivity.class);
+                                intent.putExtra("msg","Beregisztralta magat"+ mUserNameEditText.getText().toString());
                                 startActivity(intent);
 
                             }
@@ -168,10 +172,10 @@ public class SignUpActivity extends BasicActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        mSignUpButton=findViewById(ro.sapientia.ms.sapiadvertiser.R.id.signUpButton);
-        mUserNameEditText=findViewById(ro.sapientia.ms.sapiadvertiser.R.id.userNameEditText);
-        mEmailEditText=findViewById(ro.sapientia.ms.sapiadvertiser.R.id.emailEditText);
-        mPhoneEditText=findViewById(ro.sapientia.ms.sapiadvertiser.R.id.phoneNumberEditText);
+        mSignUpButton=findViewById(R.id.signUpButton);
+        mUserNameEditText=findViewById(R.id.userNameEditText);
+        mEmailEditText=findViewById(R.id.emailEditText);
+        mPhoneEditText=findViewById(R.id.phoneNumberEditText);
         noInternetTextView=findViewById(R.id.noInternetTextView);
 
         mViews.add(mSignUpButton);
@@ -180,13 +184,4 @@ public class SignUpActivity extends BasicActivity {
         mViews.add(mPhoneEditText);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
 }
