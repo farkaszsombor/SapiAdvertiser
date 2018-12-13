@@ -15,17 +15,27 @@ public class FragmentManager {
         this.context = context;
     }
 
-    public void executeTransaction(Fragment fragment,int resource,boolean isLast){
+    public void executeTransaction(Fragment fragment, int resource,String name, boolean isLast){
 
+
+        for(int i = 0; i < ((MainActivity) context).getSupportFragmentManager().getBackStackEntryCount(); ++i){
+            ((MainActivity) context).getSupportFragmentManager().popBackStack();
+        }
         if(fragment != null) {
             FragmentTransaction transaction = ((MainActivity) context).getSupportFragmentManager().beginTransaction();
             if(!isLast){
-                transaction.replace(resource, fragment).addToBackStack(null);
+                transaction.replace(resource, fragment, name).addToBackStack(null);
             }
             else{
-                transaction.replace(resource, fragment);
+                transaction.replace(resource, fragment, name);
             }
             transaction.commit();
         }
+    }
+
+    public boolean isActive(String fragmentName){
+
+        Fragment fragment = ((MainActivity) context).getSupportFragmentManager().findFragmentByTag(fragmentName);
+        return fragment != null && fragment.isVisible();
     }
 }

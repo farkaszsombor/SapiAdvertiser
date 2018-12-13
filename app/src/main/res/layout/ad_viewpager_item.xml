@@ -7,7 +7,6 @@
         android:id="@+id/pager_imageView"
         android:layout_width="match_parent"
         android:scaleType="fitXY"
-        android:src="@mipmap/ic_launcher"
         android:contentDescription="@string/details_content_desc"
         android:layout_height="match_parent"/>
 

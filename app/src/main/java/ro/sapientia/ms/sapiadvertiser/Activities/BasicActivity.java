@@ -1,4 +1,4 @@
-package ro.sapientia.ms.sapiadvertiser;
+package ro.sapientia.ms.sapiadvertiser.Activities;
 
 import android.content.IntentFilter;
 import android.graphics.Color;
@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import ro.sapientia.ms.sapiadvertiser.R;
 
 public abstract class BasicActivity extends AppCompatActivity implements InternetStateListener{
 

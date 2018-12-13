@@ -1,8 +1,7 @@
-package ro.sapientia.ms.sapiadvertiser;
+package ro.sapientia.ms.sapiadvertiser.Activities;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +16,8 @@ import com.google.firebase.auth.*;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
+import ro.sapientia.ms.sapiadvertiser.R;
 
 public class LoginActivity extends BasicActivity {
     private static final String TAG = "LoginActivity";
@@ -35,7 +36,7 @@ public class LoginActivity extends BasicActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(ro.sapientia.ms.sapiadvertiser.R.layout.activity_login);
 
         init();//inicializalom a fuggvenyeket ez mindenhol meg kell irni
 
@@ -158,9 +159,9 @@ public class LoginActivity extends BasicActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        mButton = findViewById(R.id.loginButton);
-        mSignUpButton = findViewById(R.id.signUpButton);
-        mEditText=findViewById(R.id.loginPhoneNumberEditText);
+        mButton = findViewById(ro.sapientia.ms.sapiadvertiser.R.id.loginButton);
+        mSignUpButton = findViewById(ro.sapientia.ms.sapiadvertiser.R.id.signUpButton);
+        mEditText=findViewById(ro.sapientia.ms.sapiadvertiser.R.id.loginPhoneNumberEditText);
 
         noInternetTextView=findViewById(R.id.intrnetIsMissing);//fontos h mindig a noInternetTextView -ra rakjuk ra azt a neki megfelelo mezot a toggle biztositja utana a dolgokat
 

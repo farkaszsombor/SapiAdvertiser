@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -234,6 +235,7 @@ public class CreateAdFragment extends Fragment {
                                     Uri downloadUri = task.getResult();
                                     advertisement.getImages().put(String.valueOf(System.currentTimeMillis()),downloadUri.toString());
                                     advertisement.setAdID(key);
+                                    advertisement.setCreatorID(FirebaseAuth.getInstance().getUid());
                                     advertisement.setTitle(mTitle.getText().toString());
                                     advertisement.setShortDescription(mShortDesc.getText().toString());
                                     advertisement.setLongDescription(mLongDesc.getText().toString());

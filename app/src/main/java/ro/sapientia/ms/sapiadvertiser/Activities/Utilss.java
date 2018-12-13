@@ -1,4 +1,4 @@
-package ro.sapientia.ms.sapiadvertiser;
+package ro.sapientia.ms.sapiadvertiser.Activities;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
