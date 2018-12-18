@@ -34,6 +34,7 @@ public class SignUpActivity extends BasicActivity  {
     private EditText mEmailEditText;
     private EditText mPhoneEditText;
     private String mVerificationId;
+    private String email;
 
     private PhoneAuthProvider.ForceResendingToken mResendToken;
     private boolean mButtonType = false;
@@ -84,7 +85,7 @@ public class SignUpActivity extends BasicActivity  {
                                         mUserNameEditText.setVisibility(View.INVISIBLE);
                                         mPhoneEditText.setVisibility(View.INVISIBLE);
                                         mButtonType=true;
-
+                                        email=mEmailEditText.getText().toString();
                                         mEmailEditText.setText("");
                                         mEmailEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
                                         mEmailEditText.setHint("Verification Code");
@@ -140,7 +141,7 @@ public class SignUpActivity extends BasicActivity  {
                             if(user!=null)
                             {
                                 user.updateProfile(new UserProfileChangeRequest.Builder().setDisplayName(mUserNameEditText.getText().toString()).build());
-                                user.updateEmail(mEmailEditText.getText().toString());
+                                user.updateEmail(email);
 
                                 //ide kell az Intentbe belerakni a belejentkezes utani mezot
                                 Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
