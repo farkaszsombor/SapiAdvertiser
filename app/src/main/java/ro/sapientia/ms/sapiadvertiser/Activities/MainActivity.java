@@ -9,6 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import ro.sapientia.ms.sapiadvertiser.Fragments.CreateAdFragment;
 import ro.sapientia.ms.sapiadvertiser.Fragments.DetailsFragment;
 import ro.sapientia.ms.sapiadvertiser.Fragments.HomeFragment;
@@ -16,34 +19,38 @@ import ro.sapientia.ms.sapiadvertiser.Fragments.ProfileUpdateFragment;
 import ro.sapientia.ms.sapiadvertiser.R;
 import ro.sapientia.ms.sapiadvertiser.Utils.FragmentManager;
 
-
-
-public class MainActivity extends BasicActivity implements HomeFragment.OnFragmentInteractionListener
-                                                    ,ProfileUpdateFragment.OnFragmentInteractionListener
+public class MainActivity extends AppCompatActivity implements ProfileUpdateFragment.OnFragmentInteractionListener
                                                     ,DetailsFragment.OnFragmentInteractionListener
                                                     ,CreateAdFragment.OnFragmentInteractionListener {
 
     private FragmentManager manager;
-
+    private FirebaseAuth mAuth;
     private BottomNavigationView.OnNavigationItemSelectedListener onNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
             Fragment selectedFragment;
+            String name;
             switch (menuItem.getItemId()){
                 case R.id.tud:
                     selectedFragment = new CreateAdFragment();
+                    name = "create";
                     break;
                 case R.id.home:
-                    selectedFragment = new HomeFragment();
+                    selectedFragment = HomeFragment.newInstance();
+                    name = "home";
                     break;
                 case R.id.profile:
                     selectedFragment = new ProfileUpdateFragment();
+                    name = "profile";
                     break;
                 default:
                     selectedFragment = new HomeFragment();
+                    name = "home";
                     break;
             }
-            manager.executeTransaction(selectedFragment,R.id.frame_layout,false);
+            if(!manager.isActive(name)){
+                manager.executeTransaction(selectedFragment,R.id.frame_layout, name ,false);
+            }
             return true;
         }
     };
@@ -53,15 +60,13 @@ public class MainActivity extends BasicActivity implements HomeFragment.OnFragme
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        Intent intent = new Intent(this, SignUpActivity.class);
-//        startActivity(intent);
-
+        mAuth = FirebaseAuth.getInstance();
         manager = new FragmentManager(MainActivity.this);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener);
 
-        manager.executeTransaction(new HomeFragment(),R.id.frame_layout,true);
+        manager.executeTransaction(HomeFragment.newInstance(),R.id.frame_layout,"home",true);
 
         bottomNavigationView.getMenu().getItem(1).setChecked(true);
     }
@@ -74,7 +79,7 @@ public class MainActivity extends BasicActivity implements HomeFragment.OnFragme
     @Override
     public void onBackPressed() {
 
-        if(getSupportFragmentManager().getBackStackEntryCount() == 1){
+        if(getSupportFragmentManager().getBackStackEntryCount() > 0){
             getSupportFragmentManager().popBackStackImmediate();
         }
         else {
@@ -82,4 +87,15 @@ public class MainActivity extends BasicActivity implements HomeFragment.OnFragme
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser == null) {
+            Intent authIntent= new Intent(MainActivity.this,SignUpActivity.class);
+            startActivity(authIntent);
+            finish();
+        }
+    }
 }

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -80,7 +74,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
                 bundle.putParcelable("Advertisement",adList.get(adHolder.getAdapterPosition()));
                 frag.setArguments(bundle);
                 FragmentManager manager = new FragmentManager(context);
-                manager.executeTransaction(frag,R.id.frame_layout,false);
+                manager.executeTransaction(frag,R.id.frame_layout,"details",false);
             }
         });
     }

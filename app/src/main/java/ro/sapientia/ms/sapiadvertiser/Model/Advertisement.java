@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 public class Advertisement implements Parcelable {
 
+    private String creatorID;
     private String adID;
     private String title;
     private String longDescription;
@@ -21,7 +22,7 @@ public class Advertisement implements Parcelable {
 
     }
 
-    public Advertisement(String adID, String title, String longDescription,String shortDescription, int numOfViews,String advertURL,HashMap<String,String> images,String location,Long timeStamp) {
+    public Advertisement(String creatorID, String adID, String title, String longDescription,String shortDescription, int numOfViews,String advertURL,HashMap<String,String> images,String location,Long timeStamp) {
         this.title = title;
         this.longDescription = longDescription;
         this.shortDescription = shortDescription;
@@ -31,6 +32,7 @@ public class Advertisement implements Parcelable {
         this.location = location;
         this.adID = adID;
         this.timeStamp = timeStamp;
+        this.creatorID = creatorID;
     }
 
     private Advertisement(Parcel in) {
@@ -122,6 +124,14 @@ public class Advertisement implements Parcelable {
 
     public void setTimeStamp(Long timeStamp) {
         this.timeStamp = timeStamp;
+    }
+
+    public String getCreatorID() {
+        return creatorID;
+    }
+
+    public void setCreatorID(String creatorID) {
+        this.creatorID = creatorID;
     }
 
     @Override
