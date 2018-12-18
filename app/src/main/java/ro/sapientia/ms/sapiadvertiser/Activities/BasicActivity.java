@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -43,42 +44,35 @@ public abstract class BasicActivity extends AppCompatActivity implements Interne
         unregisterReceiver(networkReceiver);
     }
 
-    protected void toggleViews()
+    protected void toggleViews(boolean enable)
     {
-        for (View v:mViews) {
-            v.setEnabled(!v.isEnabled());
+        if(mViews!=null) {
+            for (View v : mViews) {
+                v.setEnabled(enable);
 
-            if(v instanceof Button)
-            {
-                if(v.isEnabled()) {
-                    v.setBackgroundColor(Color.parseColor("#737373"));
-                }
-                else{
-                    v.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                if (v instanceof Button) {
+                    if (!enable) {
+                        v.setBackgroundColor(Color.parseColor("#737373"));
+                    } else {
+                        v.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                    }
                 }
             }
-        }
 
-        if(noInternetTextView!=null)
-        {
-            if(noInternetTextView.getVisibility()==View.VISIBLE)
-            {
-                noInternetTextView.setVisibility(View.INVISIBLE);
-            }
-            else
-            {
-                noInternetTextView.setVisibility(View.VISIBLE);
+            if (noInternetTextView != null) {
+                noInternetTextView.setVisibility(enable ? View.INVISIBLE : View.VISIBLE);
             }
         }
     }
     @Override
     public void onDisconected() {
         Log.d(TAG, "onDisconected");
-        toggleViews();
+        toggleViews(false);
+        Toast.makeText(this, "No internet connection", Toast.LENGTH_LONG).show();
     }
     @Override
     public void onConnected() {
         Log.d(TAG, "onConnected");
-        toggleViews();
+        toggleViews(true);
     }
 }

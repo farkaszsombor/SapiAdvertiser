@@ -50,7 +50,7 @@ public class SignUpActivity extends BasicActivity  {
 
         if (!NetworkUtils.isNetworkAvailable(SignUpActivity.this)) {
 
-            toggleViews();
+            toggleViews(false);
 
         } else {
             mSignUpButton.setOnClickListener(new View.OnClickListener() {
@@ -143,8 +143,10 @@ public class SignUpActivity extends BasicActivity  {
                                 user.updateEmail(mEmailEditText.getText().toString());
 
                                 //ide kell az Intentbe belerakni a belejentkezes utani mezot
-                                Intent intent = new Intent(SignUpActivity.this, DebugActivity.class);
-                                intent.putExtra("msg","Beregisztralta magat"+ mUserNameEditText.getText().toString());
+                                Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+
+                               // Intent intent = new Intent(SignUpActivity.this, DebugActivity.class);
+                               // intent.putExtra("msg","Beregisztralta magat"+ mUserNameEditText.getText().toString());
                                 startActivity(intent);
 
                             }
