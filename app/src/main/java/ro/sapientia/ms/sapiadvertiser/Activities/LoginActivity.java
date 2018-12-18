@@ -47,7 +47,7 @@ public class LoginActivity extends BasicActivity {
         //mindegyik activitybe be kell irni ezt a fuggvenyt
         if (!NetworkUtils.isNetworkAvailable(LoginActivity.this)) {
 
-            toggleViews();
+            toggleViews(false);
 
         } else {
 
@@ -137,8 +137,11 @@ public class LoginActivity extends BasicActivity {
                             else
                             {
                                 //ide kell az Intentbe belerakni a belejentkezes utani mezot
-                                Intent intent = new Intent(LoginActivity.this, DebugActivity.class);
-                                intent.putExtra("msg","Bejelentkezett"+ user.getDisplayName());
+
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                //test
+                                //Intent intent = new Intent(LoginActivity.this, DebugActivity.class);
+                                //intent.putExtra("msg","Bejelentkezett"+ user.getDisplayName());
                                 startActivity(intent);
                             }
 
@@ -163,7 +166,7 @@ public class LoginActivity extends BasicActivity {
         mAuth = FirebaseAuth.getInstance();
 
         mButton = findViewById(R.id.loginButton);
-        mSignUpButton = findViewById(R.id.signUpButton);
+        mSignUpButton = findViewById(R.id.registerButton);
         mEditText=findViewById(R.id.loginPhoneNumberEditText);
 
         noInternetTextView=findViewById(R.id.intrnetIsMissing);//fontos h mindig a noInternetTextView -ra rakjuk ra azt a neki megfelelo mezot a toggle biztositja utana a dolgokat

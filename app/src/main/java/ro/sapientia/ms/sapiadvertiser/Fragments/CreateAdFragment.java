@@ -151,6 +151,7 @@ public class CreateAdFragment extends Fragment {
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //TODO if(NetworkUtils.isNetworkAvailable)
                 if(!checkFormData()){
                     Toast.makeText(getContext(),"Correct the mistakes!",Toast.LENGTH_LONG).show();
                     return;
@@ -159,6 +160,7 @@ public class CreateAdFragment extends Fragment {
                     Toast.makeText(getContext(),"Select at least an image",Toast.LENGTH_LONG).show();
                     return;
                 }
+                //TODO if(NetworkUtils.isNetworkAvailable)
                 uploadImagesToStorage();
             }
         });

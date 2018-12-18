@@ -1,5 +1,6 @@
 package ro.sapientia.ms.sapiadvertiser.Activities;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -15,7 +16,9 @@ import ro.sapientia.ms.sapiadvertiser.Fragments.ProfileUpdateFragment;
 import ro.sapientia.ms.sapiadvertiser.R;
 import ro.sapientia.ms.sapiadvertiser.Utils.FragmentManager;
 
-public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener
+
+
+public class MainActivity extends BasicActivity implements HomeFragment.OnFragmentInteractionListener
                                                     ,ProfileUpdateFragment.OnFragmentInteractionListener
                                                     ,DetailsFragment.OnFragmentInteractionListener
                                                     ,CreateAdFragment.OnFragmentInteractionListener {
@@ -50,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//        Intent intent = new Intent(this, SignUpActivity.class);
+//        startActivity(intent);
 
         manager = new FragmentManager(MainActivity.this);
 
