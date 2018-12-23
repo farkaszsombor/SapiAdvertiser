@@ -69,7 +69,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
                         .child(adList.get(adHolder.getAdapterPosition()).getAdID())
                         .child("numOfViews")
                         .setValue(adList.get(adHolder.getAdapterPosition()).getNumOfViews() + 1);
-                DetailsFragment frag = new DetailsFragment();
+                DetailsFragment frag = DetailsFragment.newInstance();
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("Advertisement",adList.get(adHolder.getAdapterPosition()));
                 frag.setArguments(bundle);

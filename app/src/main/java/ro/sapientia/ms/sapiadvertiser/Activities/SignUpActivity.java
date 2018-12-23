@@ -140,7 +140,7 @@ public class SignUpActivity extends BasicActivity  {
                             if(user!=null)
                             {
                                 user.updateProfile(new UserProfileChangeRequest.Builder().setDisplayName(mUserNameEditText.getText().toString()).build());
-                                user.updateEmail(mEmailEditText.getText().toString());
+                                //user.updateEmail(mEmailEditText.getText().toString());
 
                                 //ide kell az Intentbe belerakni a belejentkezes utani mezot
                                 Intent intent = new Intent(SignUpActivity.this, DebugActivity.class);

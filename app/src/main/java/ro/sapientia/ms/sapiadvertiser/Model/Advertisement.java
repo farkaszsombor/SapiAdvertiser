@@ -17,22 +17,10 @@ public class Advertisement implements Parcelable {
     private HashMap<String,String> images = new HashMap<>();
     private String location;
     private Long timeStamp;
+    private String phoneNumber;
 
     public Advertisement(){
 
-    }
-
-    public Advertisement(String creatorID, String adID, String title, String longDescription,String shortDescription, int numOfViews,String advertURL,HashMap<String,String> images,String location,Long timeStamp) {
-        this.title = title;
-        this.longDescription = longDescription;
-        this.shortDescription = shortDescription;
-        this.numOfViews = numOfViews;
-        this.advertURL = advertURL;
-        this.images = images;
-        this.location = location;
-        this.adID = adID;
-        this.timeStamp = timeStamp;
-        this.creatorID = creatorID;
     }
 
     private Advertisement(Parcel in) {
@@ -132,6 +120,14 @@ public class Advertisement implements Parcelable {
 
     public void setCreatorID(String creatorID) {
         this.creatorID = creatorID;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     @Override

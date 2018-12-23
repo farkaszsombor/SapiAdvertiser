@@ -13,15 +13,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import ro.sapientia.ms.sapiadvertiser.Fragments.CreateAdFragment;
-import ro.sapientia.ms.sapiadvertiser.Fragments.DetailsFragment;
-import ro.sapientia.ms.sapiadvertiser.Fragments.HomeFragment;
+import ro.sapientia.ms.sapiadvertiser.Fragments.ListFragment;
 import ro.sapientia.ms.sapiadvertiser.Fragments.ProfileUpdateFragment;
 import ro.sapientia.ms.sapiadvertiser.R;
 import ro.sapientia.ms.sapiadvertiser.Utils.FragmentManager;
 
-public class MainActivity extends AppCompatActivity implements ProfileUpdateFragment.OnFragmentInteractionListener
-                                                    ,DetailsFragment.OnFragmentInteractionListener
-                                                    ,CreateAdFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements ProfileUpdateFragment.OnFragmentInteractionListener{
 
     private FragmentManager manager;
     private FirebaseAuth mAuth;
@@ -32,19 +29,19 @@ public class MainActivity extends AppCompatActivity implements ProfileUpdateFrag
             String name;
             switch (menuItem.getItemId()){
                 case R.id.tud:
-                    selectedFragment = new CreateAdFragment();
+                    selectedFragment = CreateAdFragment.newInstance();
                     name = "create";
                     break;
                 case R.id.home:
-                    selectedFragment = HomeFragment.newInstance();
+                    selectedFragment = ListFragment.newInstance();
                     name = "home";
                     break;
                 case R.id.profile:
-                    selectedFragment = new ProfileUpdateFragment();
+                    selectedFragment = ProfileUpdateFragment.newInstance("arg1","arg2");
                     name = "profile";
                     break;
                 default:
-                    selectedFragment = new HomeFragment();
+                    selectedFragment = ListFragment.newInstance();
                     name = "home";
                     break;
             }
@@ -66,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements ProfileUpdateFrag
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener);
 
-        manager.executeTransaction(HomeFragment.newInstance(),R.id.frame_layout,"home",true);
+        manager.executeTransaction(ListFragment.newInstance(),R.id.frame_layout,"home",true);
 
         bottomNavigationView.getMenu().getItem(1).setChecked(true);
     }

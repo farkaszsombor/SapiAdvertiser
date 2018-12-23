@@ -18,15 +18,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import ro.sapientia.ms.sapiadvertiser.Model.Advertisement;
 import ro.sapientia.ms.sapiadvertiser.R;
 import ro.sapientia.ms.sapiadvertiser.Utils.AdAdapter;
 
 
-public class HomeFragment extends Fragment {
+public class ListFragment extends Fragment {
 
-    private final static String TAG = HomeFragment.class.getSimpleName();
+    private final static String TAG = ListFragment.class.getSimpleName();
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
@@ -35,12 +36,12 @@ public class HomeFragment extends Fragment {
     private DatabaseReference advertisementRef = databaseInstance.getReference("advertismenets");
     private ArrayList<Advertisement> adDataSet = new ArrayList<>();
 
-    public HomeFragment() {
+    public ListFragment() {
         // Required empty public constructor
     }
 
-    public static HomeFragment newInstance() {
-        HomeFragment fragment = new HomeFragment();
+    public static ListFragment newInstance() {
+        ListFragment fragment = new ListFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -77,15 +78,16 @@ public class HomeFragment extends Fragment {
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(manager);
         adapter = new AdAdapter(getContext(),adDataSet);
-        advertisementRef.addValueEventListener(new ValueEventListener() {
+        advertisementRef.orderByChild("timeStamp").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot elements : dataSnapshot.getChildren()) {
                     Advertisement advertisement = elements.getValue(Advertisement.class);
                     adDataSet.add(advertisement);
                 }
+                Collections.reverse(adDataSet);
                 recyclerView.setAdapter(adapter);
-                //adapter.notifyDataSetChanged();
+                adapter.notifyDataSetChanged();
             }
 
             @Override

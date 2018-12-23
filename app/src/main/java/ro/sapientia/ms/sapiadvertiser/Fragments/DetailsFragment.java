@@ -1,34 +1,33 @@
 package ro.sapientia.ms.sapiadvertiser.Fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
+import java.util.Objects;
 
 import ro.sapientia.ms.sapiadvertiser.Model.Advertisement;
+import ro.sapientia.ms.sapiadvertiser.Model.User;
 import ro.sapientia.ms.sapiadvertiser.R;
 import ro.sapientia.ms.sapiadvertiser.Utils.AdImageAdapter;
 
 
 public class DetailsFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private OnFragmentInteractionListener mListener;
+    private static final String TAG = DetailsFragment.class.getSimpleName();
 
     private ViewPager pager;
     private TextView longDescriptionView,titleView,phoneView,locationView;
@@ -38,20 +37,9 @@ public class DetailsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment DetailsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static DetailsFragment newInstance(String param1, String param2) {
+    public static DetailsFragment newInstance() {
         DetailsFragment fragment = new DetailsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -60,8 +48,6 @@ public class DetailsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
             advertisement = getArguments().getParcelable("Advertisement");
         }
     }
@@ -69,40 +55,20 @@ public class DetailsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_details, container, false);
         setUpWidgets(v);
         populateWidgets();
         return v;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
-    }
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 
     private void setUpWidgets(@NonNull View v){
@@ -116,12 +82,25 @@ public class DetailsFragment extends Fragment {
 
     private void populateWidgets(){
 
-        ArrayList<String> images = new ArrayList<>(advertisement.getImages().values());
-        AdImageAdapter adImageAdapter = new AdImageAdapter(getActivity(), images);
-        pager.setAdapter(adImageAdapter);
-        longDescriptionView.setText(advertisement.getLongDescription());
-        titleView.setText(advertisement.getTitle());
-        phoneView.setText("phone latter");
-        locationView.setText(advertisement.getLocation());
+        FirebaseDatabase.getInstance().getReference().child("users").child(advertisement.getCreatorID()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
+                advertisement.setPhoneNumber(Objects.requireNonNull(user).getPhoneNum());
+                ArrayList<String> images = new ArrayList<>(advertisement.getImages().values());
+                AdImageAdapter adImageAdapter = new AdImageAdapter(getActivity(), images);
+                pager.setAdapter(adImageAdapter);
+                longDescriptionView.setText(advertisement.getLongDescription());
+                titleView.setText(advertisement.getTitle());
+                phoneView.setText(advertisement.getPhoneNumber());
+                locationView.setText(advertisement.getLocation());
+                Log.e(TAG,"Phone num acquired!");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(TAG,"Phone num not acquired!");
+            }
+        });
     }
 }
