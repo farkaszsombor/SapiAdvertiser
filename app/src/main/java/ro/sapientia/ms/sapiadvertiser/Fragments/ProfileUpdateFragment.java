@@ -1,53 +1,67 @@
 package ro.sapientia.ms.sapiadvertiser.Fragments;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+import android.content.pm.PackageManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
-import ro.sapientia.ms.sapiadvertiser.Fragments.ProfileUpdateFragment;
 import ro.sapientia.ms.sapiadvertiser.Model.User;
 import ro.sapientia.ms.sapiadvertiser.R;
 import ro.sapientia.ms.sapiadvertiser.Utils.PathParser;
 
 import static android.app.Activity.RESULT_OK;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ProfileUpdateFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ProfileUpdateFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class ProfileUpdateFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -56,28 +70,34 @@ public class ProfileUpdateFragment extends Fragment {
 
     // TODO: Rename and change types of parameters
 
-    private static final String TAG = "ProfileUploadActivity";
+    private static final int REQ_PERMISSION=0;
+    private static final String TAG = "ProfileUploadFragment";
+    private Uri imgUri;
     private EditText mUserName;
     private EditText mUserPhoneNum;
     private EditText mUserEmail;
     private Button mSaveButton;
     private Button mUploadButton;
-    private de.hdodenhof.circleimageview.CircleImageView image;
+    private ImageView image;
+    private Bitmap b;
 
     private ProgressDialog mProgressDialog;
+    private ProgressBar mProgressBar;
     private ArrayList<String> pathArray;
     private StorageReference mStorageRef; //valami ma'gikus import valahova
     private String filePath;
     private final int PICK_IMAGE_REQUEST=71;
-
-    //fireabase
-    FirebaseAuth mAuth;
+    private User myUser;
+    //firebase
+    FirebaseAuth mAuth=FirebaseAuth.getInstance();
     FirebaseAuth.AuthStateListener mAuthListener;
-
     FirebaseStorage storage;
-    StorageReference storageReference;
 
-    DatabaseReference mUserDatabase;
+    StorageReference storageReference;
+    private StorageReference userRef = FirebaseStorage.getInstance().getReference().child("UserProfilePictures/");
+
+    FirebaseDatabase database =FirebaseDatabase.getInstance();
+
 
 
     private OnFragmentInteractionListener mListener;
@@ -107,90 +127,218 @@ public class ProfileUpdateFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
+        Log.d(TAG,"oncreate");
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_profile_update,container,false);
+        Log.d(TAG, "oncreate view before inflate");
+        View view = inflater.inflate(R.layout.fragment_profile_update, container, false);
+        Log.d(TAG, "oncreate view after inflate");
         //firebase
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
         //Init view
-        mUserName=view.findViewById(R.id.profileName);
-        mUserPhoneNum = view.findViewById(R.id.phoneNum);
-        mUserEmail = view.findViewById(R.id.email);
+
         mSaveButton = view.findViewById(R.id.saveButton);
         mUploadButton = view.findViewById(R.id.btnUpload);
-        image=view.findViewById(R.id.profile_image);
+        image = view.findViewById(R.id.profile_image);
+
         mProgressDialog = new ProgressDialog(getContext());
         pathArray = new ArrayList<>();
+        mUserName = view.findViewById(R.id.profileName);
+        mUserPhoneNum = view.findViewById(R.id.phoneNum);
+        mUserEmail = view.findViewById(R.id.email);
 
 
-        mAuth = FirebaseAuth.getInstance();
-        final FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         // Inflate the layout for this fragment
 
+        getUserInfo();
 
         mUploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "onClick: Uploading Image.");
-                mProgressDialog.setMessage("Uploading Image...");
-                mProgressDialog.show();
+                permissionRequest();
+                Log.d(TAG, "onClick: Uploading Image button");
+                chooseImage();
 
-                //get the signed in user
-                FirebaseUser user = mAuth.getCurrentUser();
-                String userID = Objects.requireNonNull(user).getUid(); // van ennek id-ja alapból?
-
-                String name = mUserPhoneNum.toString();
-
-
+                Log.d(TAG, "uploadbutton end");
+                loadImageFromStorage();
             }
 
         });
+
 
         mSaveButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                final User myUser = new User(mUserName.toString(), mUserEmail.toString(), mUserPhoneNum.toString());
+            public void onClick(View view) {
 
-                final UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                        .setDisplayName(myUser.getName())
-                        // maaaajd .setPhotoUri(Uri.parse("https://example.com/jane-q-user/profile.jpg"))
-                        .build();
-                currentUser.updateProfile(profileUpdates)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Log.d(TAG, "User profile updated.");
+
+                Log.d(TAG, mUserEmail.getText().toString());
+
+                Log.d(TAG, "onclicksave");
+
+                myUser = new User(mUserName.getText().toString(), mUserEmail.getText().toString(), mUserPhoneNum.getText().toString());
+
+                Log.d(TAG, myUser.toString());
+
+                final String key = database.getReference("Users").push().getKey();
+                Objects.requireNonNull(getActivity()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                Log.d(TAG, "ittvan");
+
+
+
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(Objects.requireNonNull(getActivity()).getContentResolver(), imgUri);
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                    byte[] arr = outputStream.toByteArray();
+                    final StorageReference picRef = userRef.child(String.valueOf(System.currentTimeMillis()) + ".jpg");
+                    final UploadTask uploadTask = picRef.putBytes(arr);
+                    //mProgressBar.setVisibility(View.VISIBLE);
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG, "onFailure", e);
+                            getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                            getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                            Toast.makeText(getContext(), "Image Uploading failed!", Toast.LENGTH_LONG).show();
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Log.e(TAG, "Succesfully uploaded files!");
+                            uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                                @Override
+                                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                                    if (!task.isSuccessful()) {
+                                        throw Objects.requireNonNull(task.getException());
+                                    }
+                                    Log.e(TAG, "Trigger point here!!!");
+                                    // Continue with the task to get the download URL
+                                    return picRef.getDownloadUrl();
                                 }
-                            }
-                        });
-                currentUser.updateEmail(myUser.getEmail())
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Log.d(TAG, "User email address updated.");
+                            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful()) {
+                                        Uri downloadUri = task.getResult();
+                                        myUser.setProfilePicture(downloadUri.toString());
+                                        database.getReference("users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).setValue(myUser);
+                                        Log.d(TAG, "Success: " + downloadUri.toString());
+                                        Toast.makeText(getContext(), "User successfully updated!", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Log.d(TAG, "Failure!", task.getException());
+                                        Toast.makeText(getContext(), "Unsuccesfull ", Toast.LENGTH_LONG).show();
+                                    }
+                                    Log.e(TAG, String.valueOf(myUser.getProfilePicture()));
+                                    //mProgressBar.setVisibility(View.INVISIBLE);
+                                    getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                                    getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
                                 }
-                            }
-                        });
-
-
+                            });
+                        }
+                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            //double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                            //mProgressBar.setProgress((int) progress);
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
-
-        return inflater.inflate(R.layout.fragment_profile_update, container, false);
+        return view;
     }
 
+    public void permissionRequest(){
+        int req = ContextCompat.checkSelfPermission(getContext(),Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (req != PackageManager.PERMISSION_GRANTED/*=0*/){
+            ActivityCompat.requestPermissions((Activity) getContext(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE/*ide manifest.permission.R_E_S kellene */},REQ_PERMISSION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_PERMISSION && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            Log.d (TAG,"permission ok");
+        }else {
+        Log.d(TAG,"permission filed");
+        }
+    }
+
+
+    private void chooseImage(){
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(Intent.createChooser(intent,"Select Picture"),PICK_IMAGE_REQUEST);
+        Log.d(TAG,"chooseimage() OK");
+    }
+    private void uploadImagesToStorage(){
+
+        final String key = database.getReference("Advertisements").push().getKey();
+        Objects.requireNonNull(getActivity()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        //mConstraintLayout.setAlpha(0.2F);
+        image.setAlpha(0.2F);
+
+
+    }
+    private void loadImageFromStorage()
+    {
+        try{
+            File f=new File(filePath, "");
+            b = BitmapFactory.decodeStream(new FileInputStream(f));
+            image.setImageBitmap(b);
+        }catch (FileNotFoundException e){
+            Log.e(TAG, "loadImageFromStorage: FileNotFoundException: " + e.getMessage() );
+        }
+
+    }
+
+    public void imageUpload(){
+        if(filePath != null){
+            final ProgressDialog progressDialog = new ProgressDialog(this.getContext());
+            progressDialog.setTitle("Uploading");
+            progressDialog.show();
+
+            StorageReference ref = storageReference.child("images/"+UUID.randomUUID().toString());
+            StorageTask<UploadTask.TaskSnapshot> u =
+                    ref.putFile(Uri.parse(filePath))
+                            .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    progressDialog.dismiss();
+                                    Toast.makeText(getContext() ,"Uploaded", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    progressDialog.dismiss();
+                                    Toast.makeText(getContext(),"Failed"+e.getMessage(),Toast.LENGTH_SHORT).show();
+                                    Log.d(TAG,e.getMessage());
+                                }
+                            })
+                            .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                                    double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
+                                    progressDialog.setMessage("Uploaded"+(int)progress+"%");
+                                }
+                            });
+        }
+
+    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -231,58 +379,46 @@ public class ProfileUpdateFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    private void chooseImage(){
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent,"Select Picture"),PICK_IMAGE_REQUEST);
-    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null)
         {
-            Uri uri;
+
             if(data != null){
-                uri = data.getData();
-                if(uri != null){
-                    filePath = PathParser.getPathFromUri(getContext(),uri);
+                imgUri = data.getData();
+                if(imgUri != null){
+                    filePath = PathParser.getPathFromUri(getContext(),imgUri);
+                    Log.d(TAG,filePath);
+                    Glide.with(getView())
+                            .load(new File(filePath)).apply(RequestOptions.circleCropTransform())
+                            .into(image);
                 }
+
             }
         }
     }
-    public void imageUpload(){
-        if(filePath != null){
-            final ProgressDialog progressDialog = new ProgressDialog(this.getContext());
-            progressDialog.setTitle("Uploading");
-            progressDialog.show();
+    private void getUserInfo(){
+        database.getReference().child("users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                myUser=dataSnapshot.getValue(User.class);
+                mUserEmail.setText(Objects.requireNonNull(myUser).getEmail());
+                mUserPhoneNum.setText(myUser.getPhoneNum());
+                mUserName.setText(myUser.getName());
+                if (getActivity() == null || getActivity().isDestroyed()){
+                    return;
+                }
+                Glide.with(Objects.requireNonNull(getContext())).load(myUser.getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(image);
+            }
 
-            StorageReference ref = storageReference.child("images/"+UUID.randomUUID().toString());
-            StorageTask<UploadTask.TaskSnapshot> u =
-            ref.putFile(Uri.parse(filePath))
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            progressDialog.dismiss();
-                            Toast.makeText(getContext() ,"Uploaded", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            progressDialog.dismiss();
-                            Toast.makeText(getContext(),"Failed"+e.getMessage(),Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
-                            progressDialog.setMessage("Uploaded"+(int)progress+"%");
-                        }
-                    });
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(TAG,"adatot nem tudtuk lekerni",databaseError.toException());
+            }
+        });
 
     }
+
 }
