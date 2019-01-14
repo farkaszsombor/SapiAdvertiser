@@ -49,41 +49,30 @@ import ro.sapientia.ms.sapiadvertiser.Utils.PathParser;
 
 public class CreateAdFragment extends Fragment {
 
-
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
     public static final int OPEN_DOCUMENT_CODE  = 2;
 
-    private static final String TAG = "CREATEADFRAGMENT";
+    private static final String TAG = CreateAdFragment.class.getSimpleName();
     private ArrayList<String> uploadableImages;
     private ArrayList<Uri> imagesUri;
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private ConstraintLayout mConstraintLayout;
     private ViewPager viewPager;
-    private ImageView addImageButton;
-    private Button uploadButton;
     private EditText mTitle,mShortDesc,mLongDesc,mLocation;
     private ProgressBar mprogressBar;
     private Advertisement advertisement;
+    private ImageView leftButton,rightButton;
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private StorageReference advertismentRef = FirebaseStorage.getInstance().getReference().child("AdvertismentPictures/");
 
-    private OnFragmentInteractionListener mListener;
 
     public CreateAdFragment() {
         // Required empty public constructor
     }
 
-    public static CreateAdFragment newInstance(String param1, String param2) {
+    public static CreateAdFragment newInstance() {
         CreateAdFragment fragment = new CreateAdFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -91,10 +80,6 @@ public class CreateAdFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -107,42 +92,33 @@ public class CreateAdFragment extends Fragment {
         viewPager.setAdapter(new AdImageAdapter(getActivity(),uploadableImages));
         advertisement = new Advertisement();
         imagesUri = new ArrayList<>();
+        handleViewpagerNavigation();
         return view;
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
-    }
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 
     private void initWidgets(View view){
 
         viewPager = view.findViewById(R.id.picked_image_pager);
-        addImageButton = view.findViewById(R.id.add_image_logo);
+        ImageView addImageButton = view.findViewById(R.id.add_image_logo);
         mTitle = view.findViewById(R.id.title_of_adv);
         mShortDesc = view.findViewById(R.id.short_of_adv);
         mLongDesc = view.findViewById(R.id.long_of_adv);
         mLocation = view.findViewById(R.id.location_of_adv);
         mprogressBar = view.findViewById(R.id.progress);
         mConstraintLayout = view.findViewById(R.id.container);
-        uploadButton = view.findViewById(R.id.upload_advert);
+        leftButton = view.findViewById(R.id.swipe_left);
+        rightButton = view.findViewById(R.id.swipe_right);
+        Button uploadButton = view.findViewById(R.id.upload_advert);
         addImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -198,6 +174,7 @@ public class CreateAdFragment extends Fragment {
         Objects.requireNonNull(getActivity()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         mConstraintLayout.setAlpha(0.2F);
+        mprogressBar.setVisibility(View.VISIBLE);
         for(Uri imgUri : imagesUri){
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(Objects.requireNonNull(getActivity()).getContentResolver(),imgUri);
@@ -206,7 +183,6 @@ public class CreateAdFragment extends Fragment {
                 byte[] arr = outputStream.toByteArray();
                 final StorageReference picRef = advertismentRef.child(String.valueOf(System.currentTimeMillis()) + ".jpg");
                 final UploadTask uploadTask = picRef.putBytes(arr);
-                mprogressBar.setVisibility(View.VISIBLE);
                 uploadTask.addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
@@ -244,6 +220,7 @@ public class CreateAdFragment extends Fragment {
                                     advertisement.setNumOfViews(0);
                                     advertisement.setLocation(mLocation.getText().toString());
                                     advertisement.setTimeStamp(System.currentTimeMillis());
+                                    advertisement.setIsReported(false);
                                     database.getReference("advertismenets").child(Objects.requireNonNull(key)).setValue(advertisement);
                                     Log.e(TAG,"Success: " + downloadUri.toString());
                                     Toast.makeText(getContext(),"Advertisement successfully posted!",Toast.LENGTH_LONG).show();
@@ -291,5 +268,31 @@ public class CreateAdFragment extends Fragment {
             isWellFormed = true;
         }
         return isWellFormed;
+    }
+
+    private void handleViewpagerNavigation(){
+
+        leftButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int tab = viewPager.getCurrentItem();
+                if(tab > 0){
+                    tab--;
+                    viewPager.setCurrentItem(tab);
+                }
+                else{
+                    viewPager.setCurrentItem(tab);
+                }
+            }
+        });
+
+        rightButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int tab = viewPager.getCurrentItem();
+                tab++;
+                viewPager.setCurrentItem(tab);
+            }
+        });
     }
 }

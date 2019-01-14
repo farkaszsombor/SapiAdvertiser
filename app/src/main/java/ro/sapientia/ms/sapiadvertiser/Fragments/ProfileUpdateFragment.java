@@ -21,12 +21,13 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.content.pm.PackageManager;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.module.ManifestParser;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -34,9 +35,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -55,18 +58,10 @@ import java.util.UUID;
 import ro.sapientia.ms.sapiadvertiser.Model.User;
 import ro.sapientia.ms.sapiadvertiser.R;
 import ro.sapientia.ms.sapiadvertiser.Utils.PathParser;
-//import ro.sapientia.ms.sapiadvertiser.Manifest;
 
 import static android.app.Activity.RESULT_OK;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ProfileUpdateFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ProfileUpdateFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class ProfileUpdateFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -83,7 +78,8 @@ public class ProfileUpdateFragment extends Fragment {
     private EditText mUserEmail;
     private Button mSaveButton;
     private Button mUploadButton;
-    private de.hdodenhof.circleimageview.CircleImageView image;
+    private ImageView image;
+    private Bitmap b;
 
     private ProgressDialog mProgressDialog;
     private ProgressBar mProgressBar;
@@ -92,8 +88,8 @@ public class ProfileUpdateFragment extends Fragment {
     private String filePath;
     private final int PICK_IMAGE_REQUEST=71;
     private User myUser;
-    //fireabase
-    FirebaseAuth mAuth;
+    //firebase
+    FirebaseAuth mAuth=FirebaseAuth.getInstance();
     FirebaseAuth.AuthStateListener mAuthListener;
     FirebaseStorage storage;
 
@@ -102,7 +98,6 @@ public class ProfileUpdateFragment extends Fragment {
 
     FirebaseDatabase database =FirebaseDatabase.getInstance();
 
-    DatabaseReference mUserDatabase;
 
 
     private OnFragmentInteractionListener mListener;
@@ -150,18 +145,17 @@ public class ProfileUpdateFragment extends Fragment {
         mSaveButton = view.findViewById(R.id.saveButton);
         mUploadButton = view.findViewById(R.id.btnUpload);
         image = view.findViewById(R.id.profile_image);
+
         mProgressDialog = new ProgressDialog(getContext());
         pathArray = new ArrayList<>();
         mUserName = view.findViewById(R.id.profileName);
         mUserPhoneNum = view.findViewById(R.id.phoneNum);
         mUserEmail = view.findViewById(R.id.email);
 
-        mAuth = FirebaseAuth.getInstance();
-        final FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         // Inflate the layout for this fragment
 
+        getUserInfo();
 
         mUploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -187,16 +181,14 @@ public class ProfileUpdateFragment extends Fragment {
 
                 myUser = new User(mUserName.getText().toString(), mUserEmail.getText().toString(), mUserPhoneNum.getText().toString());
 
-                Log.d(TAG, "ittvan");
                 Log.d(TAG, myUser.toString());
 
                 final String key = database.getReference("Users").push().getKey();
                 Objects.requireNonNull(getActivity()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-                Log.d(TAG, "egy");
+                Log.d(TAG, "ittvan");
 
 
-                database.getReference("users").child(Objects.requireNonNull(key)).setValue(myUser);
 
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(Objects.requireNonNull(getActivity()).getContentResolver(), imgUri);
@@ -233,15 +225,15 @@ public class ProfileUpdateFragment extends Fragment {
                                 public void onComplete(@NonNull Task<Uri> task) {
                                     if (task.isSuccessful()) {
                                         Uri downloadUri = task.getResult();
-
-                                        database.getReference("users").child(Objects.requireNonNull(key)).setValue(myUser);
+                                        myUser.setProfilePicture(downloadUri.toString());
+                                        database.getReference("users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).setValue(myUser);
                                         Log.d(TAG, "Success: " + downloadUri.toString());
                                         Toast.makeText(getContext(), "User successfully updated!", Toast.LENGTH_LONG).show();
                                     } else {
                                         Log.d(TAG, "Failure!", task.getException());
                                         Toast.makeText(getContext(), "Unsuccesfull ", Toast.LENGTH_LONG).show();
                                     }
-                                    Log.e(TAG, String.valueOf(myUser.getProfilePicture().values().size()));
+                                    Log.e(TAG, String.valueOf(myUser.getProfilePicture()));
                                     //mProgressBar.setVisibility(View.INVISIBLE);
                                     getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                                     getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -263,31 +255,7 @@ public class ProfileUpdateFragment extends Fragment {
 
         return view;
     }
-    /*
-    * final UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                        .setDisplayName(myUser.getName())
-                        .setPhotoUri(Uri.parse("https://example.com/jane-q-user/profile.jpg"))
-                        .build();
-                currentUser.updateProfile(profileUpdates)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Log.d(TAG, "User profile updated.");
-                                }
-                            }
-                        });
-                currentUser.updateEmail(myUser.getEmail())
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Log.d(TAG, "User email address updated.");
-                                }
-                            }
-                        });
 
-    * */
     public void permissionRequest(){
         int req = ContextCompat.checkSelfPermission(getContext(),Manifest.permission.READ_EXTERNAL_STORAGE);
         if (req != PackageManager.PERMISSION_GRANTED/*=0*/){
@@ -313,7 +281,6 @@ public class ProfileUpdateFragment extends Fragment {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(Intent.createChooser(intent,"Select Picture"),PICK_IMAGE_REQUEST);
         Log.d(TAG,"chooseimage() OK");
-        /*mibe van benne a kép?*/
     }
     private void uploadImagesToStorage(){
 
@@ -329,7 +296,7 @@ public class ProfileUpdateFragment extends Fragment {
     {
         try{
             File f=new File(filePath, "");
-            Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
+            b = BitmapFactory.decodeStream(new FileInputStream(f));
             image.setImageBitmap(b);
         }catch (FileNotFoundException e){
             Log.e(TAG, "loadImageFromStorage: FileNotFoundException: " + e.getMessage() );
@@ -425,12 +392,33 @@ public class ProfileUpdateFragment extends Fragment {
                     filePath = PathParser.getPathFromUri(getContext(),imgUri);
                     Log.d(TAG,filePath);
                     Glide.with(getView())
-                            .load(new File(filePath))
+                            .load(new File(filePath)).apply(RequestOptions.circleCropTransform())
                             .into(image);
                 }
 
             }
         }
+    }
+    private void getUserInfo(){
+        database.getReference().child("users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                myUser=dataSnapshot.getValue(User.class);
+                mUserEmail.setText(Objects.requireNonNull(myUser).getEmail());
+                mUserPhoneNum.setText(myUser.getPhoneNum());
+                mUserName.setText(myUser.getName());
+                if (getActivity() == null || getActivity().isDestroyed()){
+                    return;
+                }
+                Glide.with(Objects.requireNonNull(getContext())).load(myUser.getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(image);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(TAG,"adatot nem tudtuk lekerni",databaseError.toException());
+            }
+        });
+
     }
 
 }

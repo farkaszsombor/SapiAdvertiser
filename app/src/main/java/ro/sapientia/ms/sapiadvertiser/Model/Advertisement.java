@@ -3,6 +3,7 @@ package ro.sapientia.ms.sapiadvertiser.Model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+
 import java.util.HashMap;
 
 public class Advertisement implements Parcelable {
@@ -17,22 +18,11 @@ public class Advertisement implements Parcelable {
     private HashMap<String,String> images = new HashMap<>();
     private String location;
     private Long timeStamp;
+    private String phoneNumber;
+    private boolean isReported;
 
     public Advertisement(){
 
-    }
-
-    public Advertisement(String creatorID, String adID, String title, String longDescription,String shortDescription, int numOfViews,String advertURL,HashMap<String,String> images,String location,Long timeStamp) {
-        this.title = title;
-        this.longDescription = longDescription;
-        this.shortDescription = shortDescription;
-        this.numOfViews = numOfViews;
-        this.advertURL = advertURL;
-        this.images = images;
-        this.location = location;
-        this.adID = adID;
-        this.timeStamp = timeStamp;
-        this.creatorID = creatorID;
     }
 
     private Advertisement(Parcel in) {
@@ -40,6 +30,8 @@ public class Advertisement implements Parcelable {
         longDescription = in.readString();
         numOfViews = in.readInt();
         advertURL = in.readString();
+        isReported = in.readByte() != 0;
+        timeStamp = in.readLong();
     }
 
     public static final Creator<Advertisement> CREATOR = new Creator<Advertisement>() {
@@ -134,6 +126,22 @@ public class Advertisement implements Parcelable {
         this.creatorID = creatorID;
     }
 
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public boolean isIsReported() {
+        return isReported;
+    }
+
+    public void setIsReported(boolean reported) {
+        isReported = reported;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -148,6 +156,8 @@ public class Advertisement implements Parcelable {
         dest.writeMap(this.images);
         dest.writeString(this.shortDescription);
         dest.writeString(this.location);
+        dest.writeByte((byte) (this.isReported ? 1 : 0));
+        dest.writeLong(this.timeStamp);
     }
 
     public String getFirstImage(){

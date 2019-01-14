@@ -11,4 +11,12 @@
     <string name="share_logo_cont">Share Logo</string>
 
     <string name="title_hint">Title</string>
+    <string name="sapiadvertiser">SapiAdvertiser</string>
+    <string name="hirdetes_ideje">Hirdetes ideje:</string>
+    <string name="date">Date</string>
+    <string name="location">Location</string>
+    <string name="phone_number">Phone number</string>
+    <string name="short_description">Short Description</string>
+    <string name="upload">Upload</string>
+    <string name="long_description">Long Description</string>
 </resources>
