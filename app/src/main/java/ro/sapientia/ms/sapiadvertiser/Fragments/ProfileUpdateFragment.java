@@ -225,7 +225,7 @@ public class ProfileUpdateFragment extends Fragment {
                                 public void onComplete(@NonNull Task<Uri> task) {
                                     if (task.isSuccessful()) {
                                         Uri downloadUri = task.getResult();
-                                        myUser.setProfilePicture(downloadUri.toString());
+                                        myUser.setProfilePic(downloadUri.toString());
                                         database.getReference("users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).setValue(myUser);
                                         Log.d(TAG, "Success: " + downloadUri.toString());
                                         Toast.makeText(getContext(), "User successfully updated!", Toast.LENGTH_LONG).show();
@@ -233,7 +233,7 @@ public class ProfileUpdateFragment extends Fragment {
                                         Log.d(TAG, "Failure!", task.getException());
                                         Toast.makeText(getContext(), "Unsuccesfull ", Toast.LENGTH_LONG).show();
                                     }
-                                    Log.e(TAG, String.valueOf(myUser.getProfilePicture()));
+                                    Log.e(TAG, String.valueOf(myUser.getProfilePic()));
                                     //mProgressBar.setVisibility(View.INVISIBLE);
                                     getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                                     getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -410,7 +410,7 @@ public class ProfileUpdateFragment extends Fragment {
                 if (getActivity() == null || getActivity().isDestroyed()){
                     return;
                 }
-                Glide.with(Objects.requireNonNull(getContext())).load(myUser.getProfilePicture()).apply(RequestOptions.circleCropTransform()).into(image);
+                Glide.with(Objects.requireNonNull(getContext())).load(myUser.getProfilePic()).apply(RequestOptions.circleCropTransform()).into(image);
             }
 
             @Override

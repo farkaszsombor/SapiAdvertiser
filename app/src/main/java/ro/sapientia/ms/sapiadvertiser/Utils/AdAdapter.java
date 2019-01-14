@@ -11,13 +11,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import ro.sapientia.ms.sapiadvertiser.Fragments.DetailsFragment;
 import ro.sapientia.ms.sapiadvertiser.Model.Advertisement;
+import ro.sapientia.ms.sapiadvertiser.Model.User;
 import ro.sapientia.ms.sapiadvertiser.R;
 
 public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
@@ -29,7 +34,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 
         TextView titleView,descView,numOfViewsView;
         ImageView advertImage;
-        CircleImageView profilePic;
+        ImageView profilePic;
 
         AdHolder(@NonNull final View itemView) {
             super(itemView);
@@ -60,8 +65,20 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         adHolder.titleView.setText(adList.get(i).getTitle());
         adHolder.descView.setText(adList.get(i).getShortDescription());
         adHolder.numOfViewsView.setText(String.valueOf(adList.get(i).getNumOfViews()));
+        FirebaseDatabase.getInstance().getReference("users").child(adList.get(i).getCreatorID()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                User user = dataSnapshot.getValue(User.class);
+                Glide.with(context).load(Objects.requireNonNull(user).getProfilePic()).apply(RequestOptions.circleCropTransform()).into(adHolder.profilePic);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
         Glide.with(context).load(adList.get(i).getFirstImage()).into(adHolder.advertImage);
-        Glide.with(context).load(adList.get(i).getFirstImage()).into(adHolder.profilePic);
         adHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

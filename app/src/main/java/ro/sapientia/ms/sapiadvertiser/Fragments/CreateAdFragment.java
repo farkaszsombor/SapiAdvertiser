@@ -1,15 +1,19 @@
 package ro.sapientia.ms.sapiadvertiser.Fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -50,6 +54,7 @@ import ro.sapientia.ms.sapiadvertiser.Utils.PathParser;
 public class CreateAdFragment extends Fragment {
 
     public static final int OPEN_DOCUMENT_CODE  = 2;
+    public static final int REQUEST_FOR_STORAGE = 1;
 
     private static final String TAG = CreateAdFragment.class.getSimpleName();
     private ArrayList<String> uploadableImages;
@@ -60,7 +65,7 @@ public class CreateAdFragment extends Fragment {
     private EditText mTitle,mShortDesc,mLongDesc,mLocation;
     private ProgressBar mprogressBar;
     private Advertisement advertisement;
-    private ImageView leftButton,rightButton;
+    private ImageView leftButton,rightButton,addImageButton;
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private StorageReference advertismentRef = FirebaseStorage.getInstance().getReference().child("AdvertismentPictures/");
@@ -109,7 +114,7 @@ public class CreateAdFragment extends Fragment {
     private void initWidgets(View view){
 
         viewPager = view.findViewById(R.id.picked_image_pager);
-        ImageView addImageButton = view.findViewById(R.id.add_image_logo);
+        addImageButton = view.findViewById(R.id.add_image_logo);
         mTitle = view.findViewById(R.id.title_of_adv);
         mShortDesc = view.findViewById(R.id.short_of_adv);
         mLongDesc = view.findViewById(R.id.long_of_adv);
@@ -119,6 +124,7 @@ public class CreateAdFragment extends Fragment {
         leftButton = view.findViewById(R.id.swipe_left);
         rightButton = view.findViewById(R.id.swipe_right);
         Button uploadButton = view.findViewById(R.id.upload_advert);
+        checkPermissions();
         addImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -164,6 +170,23 @@ public class CreateAdFragment extends Fragment {
                 }
                 viewPager.setAdapter(new AdImageAdapter(getActivity(),uploadableImages));
                 imagesUri.add(imageUri);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_FOR_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    selectImageFromGallery();
+                } else {
+                    addImageButton.setClickable(false);
+                    addImageButton.setFocusable(false);
+                    Toast.makeText(getActivity(),"Permission denied",Toast.LENGTH_LONG).show();
+                }
             }
         }
     }
@@ -294,5 +317,13 @@ public class CreateAdFragment extends Fragment {
                 viewPager.setCurrentItem(tab);
             }
         });
+    }
+
+    private void checkPermissions(){
+
+        int req = ContextCompat.checkSelfPermission(Objects.requireNonNull(getContext()),Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (req != PackageManager.PERMISSION_GRANTED/*=0*/){
+            ActivityCompat.requestPermissions((Activity) getContext(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE/*ide manifest.permission.R_E_S kellene */},REQUEST_FOR_STORAGE);
+        }
     }
 }

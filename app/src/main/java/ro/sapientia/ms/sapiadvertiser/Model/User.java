@@ -6,7 +6,7 @@ public class User {
     private String email;
     private String phoneNum;
     private String name;
-    private String  profilePic ;
+    private String profilePic ;
 
     public User()
     {
@@ -18,14 +18,14 @@ public class User {
         this.name = name;
     }
 
-    public String getProfilePicture() {
+    public String getProfilePic() {
         if(profilePic!=null){
             return profilePic;
         }
         return "https://firebasestorage.googleapis.com/v0/b/sapiadvertiser-5bc78.appspot.com/o/ProfilePictures%2Fsamu1.png?alt=media&token=1aa184d6-9f91-48ff-8732-864105516c90";
     }
 
-    public void setProfilePicture(String profilePicture) {
+    public void setProfilePic(String profilePicture) {
         this.profilePic = profilePicture;
     }
 
