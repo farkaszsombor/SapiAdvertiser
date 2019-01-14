@@ -19,4 +19,10 @@
     <string name="short_description">Short Description</string>
     <string name="upload">Upload</string>
     <string name="long_description">Long Description</string>
+    <string name="n_v">Név</string>
+    <string name="e_mail">E-mail</string>
+    <string name="_40712345678">+40712345678</string>
+    <string name="ment_s">Save</string>
+    <string name="my_advertisements">My Advertisements</string>
+    <string name="logout">Logout</string>
 </resources>

@@ -1,7 +1,6 @@
 package ro.sapientia.ms.sapiadvertiser.Activities;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -18,7 +17,7 @@ import ro.sapientia.ms.sapiadvertiser.Fragments.ProfileUpdateFragment;
 import ro.sapientia.ms.sapiadvertiser.R;
 import ro.sapientia.ms.sapiadvertiser.Utils.FragmentManager;
 
-public class MainActivity extends AppCompatActivity implements ProfileUpdateFragment.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity {
 
     private FragmentManager manager;
     private FirebaseAuth mAuth;
@@ -37,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements ProfileUpdateFrag
                     name = "home";
                     break;
                 case R.id.profile:
-                    selectedFragment = ProfileUpdateFragment.newInstance("arg1","arg2");
+                    selectedFragment = ProfileUpdateFragment.newInstance();
                     name = "profile";
                     break;
                 default:
@@ -71,11 +70,6 @@ public class MainActivity extends AppCompatActivity implements ProfileUpdateFrag
             manager.executeTransaction(ListFragment.newInstance("all"), R.id.frame_layout, "home", true);
             bottomNavigationView.getMenu().getItem(1).setChecked(true);
         }
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 
     @Override

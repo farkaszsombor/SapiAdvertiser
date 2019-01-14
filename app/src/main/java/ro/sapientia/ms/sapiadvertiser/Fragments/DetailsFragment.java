@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -40,15 +41,15 @@ public class DetailsFragment extends Fragment {
 
     private ViewPager pager;
     private TextView longDescriptionView,titleView,phoneView,locationView,dateView;
-    private ImageView reportButton,shareButton,leftArrow,rightArrow;
+    private ImageView reportButton,shareButton,leftArrow,rightArrow,deleteAd;
     private Advertisement advertisement;
-
 
     public DetailsFragment() {
         // Required empty public constructor
     }
 
     public static DetailsFragment newInstance() {
+
         DetailsFragment fragment = new DetailsFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -71,6 +72,7 @@ public class DetailsFragment extends Fragment {
         populateWidgets();
         reportAdvertisement();
         shareAdvertisement();
+        deleteAdvertisement();
         handleViewpagerNavigation();
         return v;
     }
@@ -97,6 +99,11 @@ public class DetailsFragment extends Fragment {
         dateView = v.findViewById(R.id.date_of_ad);
         leftArrow = v.findViewById(R.id.left_arrow);
         rightArrow = v.findViewById(R.id.right_arrow);
+        deleteAd = v.findViewById(R.id.deleteAd);
+        if(advertisement.getCreatorID().equals(FirebaseAuth.getInstance().getUid())){
+            deleteAd.setEnabled(true);
+            deleteAd.setVisibility(View.VISIBLE);
+        }
     }
 
     private void populateWidgets(){
@@ -172,6 +179,38 @@ public class DetailsFragment extends Fragment {
                 sendIntent.putExtra(Intent.EXTRA_TEXT, advertisement.getTitle() + "\n\n" + advertisement.getShortDescription() + "\n\n" + advertisement.getFirstImage());
                 sendIntent.setType("text/plain");
                 startActivity(Intent.createChooser(sendIntent, "Send to: "));
+            }
+        });
+    }
+    private void deleteAdvertisement(){
+        deleteAd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("Are you sure to delete(hide) this advertisement?")
+                        .setCancelable(false)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                FirebaseDatabase.getInstance().getReference().child("advertismenets").child(advertisement.getAdID()).child("isDeleted").setValue(true);
+                                Toast.makeText(getContext(),"Advertisement deleted!",Toast.LENGTH_LONG).show();
+                            }
+                        })
+                        .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .setNeutralButton("CANCEL", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+
             }
         });
     }

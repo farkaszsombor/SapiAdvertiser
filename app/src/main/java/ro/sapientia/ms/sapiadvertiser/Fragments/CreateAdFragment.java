@@ -244,6 +244,7 @@ public class CreateAdFragment extends Fragment {
                                     advertisement.setLocation(mLocation.getText().toString());
                                     advertisement.setTimeStamp(System.currentTimeMillis());
                                     advertisement.setIsReported(false);
+                                    advertisement.setIsDeleted(false);
                                     database.getReference("advertismenets").child(Objects.requireNonNull(key)).setValue(advertisement);
                                     Log.e(TAG,"Success: " + downloadUri.toString());
                                     Toast.makeText(getContext(),"Advertisement successfully posted!",Toast.LENGTH_LONG).show();

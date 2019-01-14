@@ -97,7 +97,7 @@ public class ListFragment extends Fragment {
                     else{
                         advertisement = element.getValue(Advertisement.class);
                     }
-                    if(!Objects.requireNonNull(advertisement).isIsReported()){
+                    if(!Objects.requireNonNull(advertisement).isIsReported()&& !advertisement.getIsDeleted()){
                         adDataSet.add(advertisement);
                     }
                 }

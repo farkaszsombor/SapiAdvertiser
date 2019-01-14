@@ -89,6 +89,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
                 DetailsFragment frag = DetailsFragment.newInstance();
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("Advertisement",adList.get(adHolder.getAdapterPosition()));
+                bundle.putString("show","show");
                 frag.setArguments(bundle);
                 FragmentManager manager = new FragmentManager(context);
                 manager.executeTransaction(frag,R.id.frame_layout,"details",false);

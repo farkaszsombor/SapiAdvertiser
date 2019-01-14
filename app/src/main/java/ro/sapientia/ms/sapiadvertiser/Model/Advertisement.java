@@ -19,7 +19,12 @@ public class Advertisement implements Parcelable {
     private String location;
     private Long timeStamp;
     private String phoneNumber;
+    private boolean isDeleted;
     private boolean isReported;
+
+
+
+
 
     public Advertisement(){
 
@@ -45,7 +50,13 @@ public class Advertisement implements Parcelable {
             return new Advertisement[size];
         }
     };
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
 
+    public void setIsDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
     public String getTitle() {
         return title;
     }
