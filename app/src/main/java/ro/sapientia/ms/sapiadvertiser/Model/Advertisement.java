@@ -3,6 +3,7 @@ package ro.sapientia.ms.sapiadvertiser.Model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+
 import java.util.HashMap;
 
 public class Advertisement implements Parcelable {
@@ -18,6 +19,7 @@ public class Advertisement implements Parcelable {
     private String location;
     private Long timeStamp;
     private String phoneNumber;
+    private boolean isReported;
 
     public Advertisement(){
 
@@ -28,6 +30,8 @@ public class Advertisement implements Parcelable {
         longDescription = in.readString();
         numOfViews = in.readInt();
         advertURL = in.readString();
+        isReported = in.readByte() != 0;
+        timeStamp = in.readLong();
     }
 
     public static final Creator<Advertisement> CREATOR = new Creator<Advertisement>() {
@@ -130,6 +134,14 @@ public class Advertisement implements Parcelable {
         this.phoneNumber = phoneNumber;
     }
 
+    public boolean isIsReported() {
+        return isReported;
+    }
+
+    public void setIsReported(boolean reported) {
+        isReported = reported;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -144,6 +156,8 @@ public class Advertisement implements Parcelable {
         dest.writeMap(this.images);
         dest.writeString(this.shortDescription);
         dest.writeString(this.location);
+        dest.writeByte((byte) (this.isReported ? 1 : 0));
+        dest.writeLong(this.timeStamp);
     }
 
     public String getFirstImage(){

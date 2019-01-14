@@ -125,16 +125,16 @@ public class LoginActivity extends BasicActivity {
 
                             //itt akkor is adhat nullt ha a tasktol nem tudom elvenni ebben az esetben
                             //mAuth.getCurrentUser()-el kerem le ezt LE KELL DEBUGGOLNI ZSOMBI
-                            if(user.getDisplayName()==null)
+                           /* if(user.getDisplayName()==null)
                             {
                                 mAuth.getInstance().signOut();
                                 Intent intent = new Intent(LoginActivity.this, DebugActivity.class);
                                 intent.putExtra("msg","Sikertelenul jelentkezett be mert nem volt profilja"+ user.getPhoneNumber());
                                 startActivity(intent);
-                                finish();
-                            }
-                            else
-                            {
+                                finish();*/
+                           // }
+                            //else
+                            //{
                                 //ide kell az Intentbe belerakni a belejentkezes utani mezot
 
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -142,7 +142,7 @@ public class LoginActivity extends BasicActivity {
                                 //Intent intent = new Intent(LoginActivity.this, DebugActivity.class);
                                 //intent.putExtra("msg","Bejelentkezett"+ user.getDisplayName());
                                 startActivity(intent);
-                            }
+                            //}
 
 
 

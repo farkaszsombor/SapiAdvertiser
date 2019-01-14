@@ -60,6 +60,7 @@ public class CreateAdFragment extends Fragment {
     private EditText mTitle,mShortDesc,mLongDesc,mLocation;
     private ProgressBar mprogressBar;
     private Advertisement advertisement;
+    private ImageView leftButton,rightButton;
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private StorageReference advertismentRef = FirebaseStorage.getInstance().getReference().child("AdvertismentPictures/");
@@ -91,6 +92,7 @@ public class CreateAdFragment extends Fragment {
         viewPager.setAdapter(new AdImageAdapter(getActivity(),uploadableImages));
         advertisement = new Advertisement();
         imagesUri = new ArrayList<>();
+        handleViewpagerNavigation();
         return view;
     }
 
@@ -114,6 +116,8 @@ public class CreateAdFragment extends Fragment {
         mLocation = view.findViewById(R.id.location_of_adv);
         mprogressBar = view.findViewById(R.id.progress);
         mConstraintLayout = view.findViewById(R.id.container);
+        leftButton = view.findViewById(R.id.swipe_left);
+        rightButton = view.findViewById(R.id.swipe_right);
         Button uploadButton = view.findViewById(R.id.upload_advert);
         addImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -170,6 +174,7 @@ public class CreateAdFragment extends Fragment {
         Objects.requireNonNull(getActivity()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         mConstraintLayout.setAlpha(0.2F);
+        mprogressBar.setVisibility(View.VISIBLE);
         for(Uri imgUri : imagesUri){
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(Objects.requireNonNull(getActivity()).getContentResolver(),imgUri);
@@ -178,7 +183,6 @@ public class CreateAdFragment extends Fragment {
                 byte[] arr = outputStream.toByteArray();
                 final StorageReference picRef = advertismentRef.child(String.valueOf(System.currentTimeMillis()) + ".jpg");
                 final UploadTask uploadTask = picRef.putBytes(arr);
-                mprogressBar.setVisibility(View.VISIBLE);
                 uploadTask.addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
@@ -216,6 +220,7 @@ public class CreateAdFragment extends Fragment {
                                     advertisement.setNumOfViews(0);
                                     advertisement.setLocation(mLocation.getText().toString());
                                     advertisement.setTimeStamp(System.currentTimeMillis());
+                                    advertisement.setIsReported(false);
                                     database.getReference("advertismenets").child(Objects.requireNonNull(key)).setValue(advertisement);
                                     Log.e(TAG,"Success: " + downloadUri.toString());
                                     Toast.makeText(getContext(),"Advertisement successfully posted!",Toast.LENGTH_LONG).show();
@@ -263,5 +268,31 @@ public class CreateAdFragment extends Fragment {
             isWellFormed = true;
         }
         return isWellFormed;
+    }
+
+    private void handleViewpagerNavigation(){
+
+        leftButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int tab = viewPager.getCurrentItem();
+                if(tab > 0){
+                    tab--;
+                    viewPager.setCurrentItem(tab);
+                }
+                else{
+                    viewPager.setCurrentItem(tab);
+                }
+            }
+        });
+
+        rightButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int tab = viewPager.getCurrentItem();
+                tab++;
+                viewPager.setCurrentItem(tab);
+            }
+        });
     }
 }

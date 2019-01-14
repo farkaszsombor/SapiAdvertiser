@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -19,6 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 
 import ro.sapientia.ms.sapiadvertiser.Model.Advertisement;
 import ro.sapientia.ms.sapiadvertiser.R;
@@ -28,21 +30,21 @@ import ro.sapientia.ms.sapiadvertiser.Utils.AdAdapter;
 public class ListFragment extends Fragment {
 
     private final static String TAG = ListFragment.class.getSimpleName();
+    private String filterOption;
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
-
-    private FirebaseDatabase databaseInstance = FirebaseDatabase.getInstance();
-    private DatabaseReference advertisementRef = databaseInstance.getReference("advertismenets");
+    private DatabaseReference advertisementRef = FirebaseDatabase.getInstance().getReference("advertismenets");
     private ArrayList<Advertisement> adDataSet = new ArrayList<>();
 
     public ListFragment() {
         // Required empty public constructor
     }
 
-    public static ListFragment newInstance() {
+    public static ListFragment newInstance(String filter) {
         ListFragment fragment = new ListFragment();
         Bundle args = new Bundle();
+        args.putString("filter",filter);
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,6 +52,9 @@ public class ListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            filterOption = getArguments().getString("filter");
+        }
     }
 
     @Override
@@ -81,9 +86,20 @@ public class ListFragment extends Fragment {
         advertisementRef.orderByChild("timeStamp").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot elements : dataSnapshot.getChildren()) {
-                    Advertisement advertisement = elements.getValue(Advertisement.class);
-                    adDataSet.add(advertisement);
+                for (DataSnapshot element : dataSnapshot.getChildren()) {
+                    Advertisement advertisement;
+                    if(filterOption.equals("UserOnly")){
+                        if(!Objects.requireNonNull(element.child("creatorID").getValue()).equals(FirebaseAuth.getInstance().getUid())){
+                            continue;
+                        }
+                        advertisement = element.getValue(Advertisement.class);
+                    }
+                    else{
+                        advertisement = element.getValue(Advertisement.class);
+                    }
+                    if(!Objects.requireNonNull(advertisement).isIsReported()){
+                        adDataSet.add(advertisement);
+                    }
                 }
                 Collections.reverse(adDataSet);
                 recyclerView.setAdapter(adapter);

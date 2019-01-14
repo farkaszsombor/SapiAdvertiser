@@ -22,18 +22,18 @@ public class MainActivity extends AppCompatActivity implements ProfileUpdateFrag
 
     private FragmentManager manager;
     private FirebaseAuth mAuth;
+    private String name;
     private BottomNavigationView.OnNavigationItemSelectedListener onNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
             Fragment selectedFragment;
-            String name;
             switch (menuItem.getItemId()){
                 case R.id.tud:
                     selectedFragment = CreateAdFragment.newInstance();
                     name = "create";
                     break;
                 case R.id.home:
-                    selectedFragment = ListFragment.newInstance();
+                    selectedFragment = ListFragment.newInstance("all");
                     name = "home";
                     break;
                 case R.id.profile:
@@ -41,10 +41,11 @@ public class MainActivity extends AppCompatActivity implements ProfileUpdateFrag
                     name = "profile";
                     break;
                 default:
-                    selectedFragment = ListFragment.newInstance();
+                    selectedFragment = ListFragment.newInstance("all");
                     name = "home";
                     break;
             }
+            menuItem.setChecked(true);
             if(!manager.isActive(name)){
                 manager.executeTransaction(selectedFragment,R.id.frame_layout, name ,false);
             }
@@ -58,14 +59,18 @@ public class MainActivity extends AppCompatActivity implements ProfileUpdateFrag
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mAuth = FirebaseAuth.getInstance();
-        manager = new FragmentManager(MainActivity.this);
-
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener);
-
-        manager.executeTransaction(ListFragment.newInstance(),R.id.frame_layout,"home",true);
-
-        bottomNavigationView.getMenu().getItem(1).setChecked(true);
+        manager = new FragmentManager(MainActivity.this);
+        if(savedInstanceState != null){
+            name = savedInstanceState.getString("fragmentName");
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag(name);
+            manager.executeTransaction(fragment,R.id.frame_layout,name,true);
+        }
+        else {
+            manager.executeTransaction(ListFragment.newInstance("all"), R.id.frame_layout, "home", true);
+            bottomNavigationView.getMenu().getItem(1).setChecked(true);
+        }
     }
 
     @Override
@@ -94,5 +99,11 @@ public class MainActivity extends AppCompatActivity implements ProfileUpdateFrag
             startActivity(authIntent);
             finish();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString("fragmentName",name);
+        super.onSaveInstanceState(outState);
     }
 }

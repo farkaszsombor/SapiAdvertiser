@@ -10,6 +10,14 @@ import java.util.Objects;
 
 public class PathParser {
 
+    /**
+     *
+     * @param context caller is context where method is called
+     * @param uri uri of file which contains data about file
+     * @return a string containing the path to the file
+     *
+     * This function parses an URI object to get its file path from content provider
+     */
     public static String getPathFromUri(Context context, Uri uri){
 
         String filePath = "";
