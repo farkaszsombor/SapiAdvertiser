@@ -13,9 +13,11 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import ro.sapientia.ms.sapiadvertiser.Interfaces.InternetStateListener;
 import ro.sapientia.ms.sapiadvertiser.R;
+import ro.sapientia.ms.sapiadvertiser.Utils.NetworkReceiver;
 
-public abstract class BasicActivity extends AppCompatActivity implements InternetStateListener{
+public abstract class BasicActivity extends AppCompatActivity implements InternetStateListener {
 
 
     private static final String TAG = BasicActivity.class.getSimpleName();
