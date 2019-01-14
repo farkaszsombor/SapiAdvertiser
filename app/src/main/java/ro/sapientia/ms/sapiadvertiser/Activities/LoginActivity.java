@@ -1,8 +1,6 @@
 package ro.sapientia.ms.sapiadvertiser.Activities;
 
 import android.content.Intent;
-import android.net.Network;
-import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,7 +8,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.*;
@@ -18,10 +15,12 @@ import com.google.firebase.auth.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import ro.sapientia.ms.sapiadvertiser.Interfaces.IAuthCb;
+import ro.sapientia.ms.sapiadvertiser.Utils.FireBaseAuthUtils;
 import ro.sapientia.ms.sapiadvertiser.Utils.NetworkUtils;
 import ro.sapientia.ms.sapiadvertiser.R;
 
-public class LoginActivity extends BasicActivity {
+public class LoginActivity extends BasicActivity implements IAuthCb {
     private static final String TAG = "LoginActivity";
     private FirebaseAuth mAuth;
 
@@ -33,7 +32,7 @@ public class LoginActivity extends BasicActivity {
 
     private boolean mButtonType = false;
 
-
+    private IAuthCb callback=this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +56,7 @@ public class LoginActivity extends BasicActivity {
                     if (mButtonType) {
                         String verificationCode = mEditText.getText().toString();
                         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, verificationCode);
-                        signInWithPhoneAuthCredential(credential);
+                        FireBaseAuthUtils.FireBaseAuth(callback,mAuth,credential,TAG);
                     } else {
                         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                                 mEditText.getText().toString(), 30L /*timeout*/, TimeUnit.SECONDS,
@@ -78,13 +77,12 @@ public class LoginActivity extends BasicActivity {
                                         mButton.setText("Enter Code");
                                         mEditText.setHint("Veryfy Code");
                                         mEditText.setText("");
+                                        mSignUpButton.setVisibility(View.INVISIBLE);
                                     }
 
                                     @Override
                                     public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
-                                        // Sign in with the credential
-                                        // ...
-                                        signInWithPhoneAuthCredential(phoneAuthCredential);
+                                        FireBaseAuthUtils.FireBaseAuth(callback, mAuth, phoneAuthCredential, TAG);
                                     }
 
                                     @Override
@@ -112,52 +110,6 @@ public class LoginActivity extends BasicActivity {
         }
     }
 
-    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-
-                            FirebaseUser user = task.getResult().getUser();
-
-                            //itt akkor is adhat nullt ha a tasktol nem tudom elvenni ebben az esetben
-                            //mAuth.getCurrentUser()-el kerem le ezt LE KELL DEBUGGOLNI ZSOMBI
-                           /* if(user.getDisplayName()==null)
-                            {
-                                mAuth.getInstance().signOut();
-                                Intent intent = new Intent(LoginActivity.this, DebugActivity.class);
-                                intent.putExtra("msg","Sikertelenul jelentkezett be mert nem volt profilja"+ user.getPhoneNumber());
-                                startActivity(intent);
-                                finish();*/
-                           // }
-                            //else
-                            //{
-                                //ide kell az Intentbe belerakni a belejentkezes utani mezot
-
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                //test
-                                //Intent intent = new Intent(LoginActivity.this, DebugActivity.class);
-                                //intent.putExtra("msg","Bejelentkezett"+ user.getDisplayName());
-                                startActivity(intent);
-                            //}
-
-
-
-                            finish();
-                        } else {
-                            // Sign in failed, display a message and update the UI
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                                // The verification code entered was invalid
-                            }
-                        }
-                    }
-                });
-    }
-
     private void  init()
     {
         mViews= new ArrayList<>();
@@ -174,5 +126,27 @@ public class LoginActivity extends BasicActivity {
         mViews.add(mSignUpButton);
         mViews.add(mEditText);
     }
+    @Override
+    public void Succses(Task<AuthResult> task) {
+        Log.d(TAG, "signInWithCredential:success");
+        FirebaseUser user = task.getResult().getUser();
 
+        if(user.getDisplayName()==null)
+        {
+            mAuth.getInstance().signOut();
+            Intent intent = new Intent(LoginActivity.this, DebugActivity.class);
+            intent.putExtra("msg","Sikertelenul jelentkezett be mert nem volt profilja"+ user.getPhoneNumber());
+            startActivity(intent);
+            finish();
+        }
+        else
+        {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+        }
+
+
+
+        finish();
+    }
 }
