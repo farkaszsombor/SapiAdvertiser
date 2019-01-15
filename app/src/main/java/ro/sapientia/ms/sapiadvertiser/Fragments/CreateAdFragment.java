@@ -48,6 +48,7 @@ import java.util.Objects;
 import ro.sapientia.ms.sapiadvertiser.Model.Advertisement;
 import ro.sapientia.ms.sapiadvertiser.R;
 import ro.sapientia.ms.sapiadvertiser.Utils.AdImageAdapter;
+import ro.sapientia.ms.sapiadvertiser.Utils.FragmentManager;
 import ro.sapientia.ms.sapiadvertiser.Utils.PathParser;
 
 
@@ -257,6 +258,8 @@ public class CreateAdFragment extends Fragment {
                                 mConstraintLayout.setAlpha(1F);
                                 getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                                 getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                                FragmentManager manager= new FragmentManager(getContext());
+                                manager.executeTransaction(ListFragment.newInstance("all"),R.id.frame_layout,"home",false);
                             }
                         });
                     }
