@@ -17,7 +17,7 @@ import ro.sapientia.ms.sapiadvertiser.Fragments.ProfileUpdateFragment;
 import ro.sapientia.ms.sapiadvertiser.R;
 import ro.sapientia.ms.sapiadvertiser.Utils.FragmentManager;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BasicActivity {
 
     private FragmentManager manager;
     private FirebaseAuth mAuth;

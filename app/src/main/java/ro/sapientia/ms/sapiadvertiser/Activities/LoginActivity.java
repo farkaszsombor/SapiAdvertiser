@@ -87,10 +87,18 @@ public class LoginActivity extends BasicActivity implements IAuthCb {
 
                                     @Override
                                     public void onVerificationFailed(FirebaseException e) {
-                                        // ...
-                                        Log.d(TAG, e.getMessage());
-                                        Log.d(TAG, e.getStackTrace().toString());
-                                        Toast.makeText(LoginActivity.this, "onVerificationFailed", Toast.LENGTH_SHORT).show();
+
+                                        if(e instanceof FirebaseAuthInvalidCredentialsException)
+                                        {
+                                            Toast.makeText(LoginActivity.this, "onVerificationFailed: Hiba a szamban", Toast.LENGTH_SHORT).show();
+                                        }
+                                        else {
+
+                                            // ...
+                                            Log.d(TAG, e.getMessage());
+                                            Log.d(TAG, e.getStackTrace().toString());
+                                            Toast.makeText(LoginActivity.this, "onVerificationFailed"+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
                                     }
 
                                 });
