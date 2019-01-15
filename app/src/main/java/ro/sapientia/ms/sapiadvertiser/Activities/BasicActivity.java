@@ -20,7 +20,7 @@ import ro.sapientia.ms.sapiadvertiser.Utils.NetworkReceiver;
 public abstract class BasicActivity extends AppCompatActivity implements InternetStateListener {
 
 
-    private final String TAG = BasicActivity.class.getSimpleName();
+    private static final String TAG = BasicActivity.class.getSimpleName();
     protected NetworkReceiver networkReceiver;
     protected ArrayList<View> mViews;
     protected TextView noInternetTextView;

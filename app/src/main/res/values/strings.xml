@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">SapiAdvertiser</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="navigation_add">Add</string>
+    <string name="navigation_home">Home</string>
+    <string name="navigation_profile">Profile</string>
+    <string name="details_content_desc">Advertisement Images</string>
+    <string name="view_logo">Touch Image</string>
+    <string name="alert_logo_cont">Alert Image</string>
+    <string name="share_logo_cont">Share Logo</string>
+
+    <string name="title_hint">Title</string>
+    <string name="sapiadvertiser">SapiAdvertiser</string>
+    <string name="hirdetes_ideje">Hirdetes ideje:</string>
+    <string name="date">Date</string>
+    <string name="location">Location</string>
+    <string name="phone_number">Phone number</string>
+    <string name="short_description">Short Description</string>
+    <string name="upload">Upload</string>
+    <string name="long_description">Long Description</string>
+    <string name="n_v">Név</string>
+    <string name="e_mail">E-mail</string>
+    <string name="_40712345678">+40712345678</string>
+    <string name="ment_s">Save</string>
+    <string name="my_advertisements">My Advertisements</string>
+    <string name="logout">Logout</string>
 </resources>
